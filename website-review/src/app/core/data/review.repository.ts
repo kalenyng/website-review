@@ -9,6 +9,8 @@ import {
   query,
   where,
   getDocs,
+  updateDoc,
+  deleteDoc,
 } from 'firebase/firestore';
 import { Observable } from 'rxjs';
 import { db } from './firebase-db';
@@ -80,6 +82,20 @@ export class ReviewRepository {
       ownerId: data['ownerId'] ? String(data['ownerId']) : undefined,
       createdAt: (data['createdAt'] as Timestamp).toDate(),
     };
+  }
+
+  async updateProject(
+    projectId: string,
+    input: { name: string; targetUrl: string },
+  ): Promise<void> {
+    await updateDoc(doc(db, 'projects', projectId), {
+      name: input.name,
+      targetUrl: input.targetUrl,
+    });
+  }
+
+  async deleteProject(projectId: string): Promise<void> {
+    await deleteDoc(doc(db, 'projects', projectId));
   }
 
   async getProjectByToken(token: string): Promise<ReviewProject | null> {

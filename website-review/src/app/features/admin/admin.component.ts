@@ -42,35 +42,62 @@ import { normalizeHttpUrl } from '../../core/utils/url.util';
         <div class="project-grid">
           @for (project of projectCards(); track project.id) {
             <article class="glass project-card">
-              <h3>{{ project.name }}</h3>
-              <p class="project-id">
-                <span>ID:</span>
-                <code>{{ project.id }}</code>
-                <button type="button" class="copy-btn" (click)="copyProjectId(project.id)">Copy</button>
-                @if (copiedProjectId() === project.id) {
-                  <span class="copy-confirm">Copied!</span>
-                }
-              </p>
-              <p class="review-link">
-                <span>Review link:</span>
-                <code>{{ project.targetUrl }}?review={{ project.token }}</code>
-                <button type="button" class="copy-btn" (click)="copyReviewLink(project.id, project.targetUrl, project.token)">Copy</button>
-                @if (copiedReviewLink() === project.id) {
-                  <span class="copy-confirm">Copied!</span>
-                }
-              </p>
-              <p class="site">
-                <a [href]="project.targetUrl" target="_blank" rel="noopener">{{ project.targetUrl }}</a>
-              </p>
-              <div class="stats">
-                <span>{{ project.commentCount }} comments</span>
-                <span>{{ project.openCount }} open</span>
-                <span>{{ project.resolvedCount }} resolved</span>
-              </div>
-              <div class="actions">
-                <a [routerLink]="['/admin/projects', project.id]">Manage comments</a>
-                <a [href]="project.targetUrl" target="_blank" rel="noopener">Open live site</a>
-              </div>
+              @if (editingProjectId() === project.id) {
+                <form class="edit-form" (ngSubmit)="saveEdit(project.id)">
+                  <input [formControl]="editForm.controls.name" placeholder="Project name" />
+                  <input [formControl]="editForm.controls.targetUrl" placeholder="https://client-site.com" />
+                  @if (editError()) {
+                    <p class="error">{{ editError() }}</p>
+                  }
+                  <div class="edit-actions">
+                    <button class="btn-primary" type="submit" [disabled]="editSaving()">Save</button>
+                    <button type="button" class="btn-ghost" (click)="cancelEdit()">Cancel</button>
+                  </div>
+                </form>
+              } @else {
+                <div class="card-header">
+                  <h3>{{ project.name }}</h3>
+                  <div class="card-controls">
+                    <button type="button" class="icon-btn" title="Edit" (click)="startEdit(project)">✎</button>
+                    @if (confirmingDeleteId() === project.id) {
+                      <span class="delete-confirm">
+                        <button type="button" class="btn-danger-sm" (click)="confirmDelete(project.id)">Delete</button>
+                        <button type="button" class="btn-ghost-sm" (click)="cancelDelete()">Cancel</button>
+                      </span>
+                    } @else {
+                      <button type="button" class="icon-btn danger" title="Delete" (click)="requestDelete(project.id)">✕</button>
+                    }
+                  </div>
+                </div>
+                <p class="project-id">
+                  <span>ID:</span>
+                  <code>{{ project.id }}</code>
+                  <button type="button" class="copy-btn" (click)="copyProjectId(project.id)">Copy</button>
+                  @if (copiedProjectId() === project.id) {
+                    <span class="copy-confirm">Copied!</span>
+                  }
+                </p>
+                <p class="review-link">
+                  <span>Review link:</span>
+                  <code>{{ project.targetUrl }}?review={{ project.token }}</code>
+                  <button type="button" class="copy-btn" (click)="copyReviewLink(project.id, project.targetUrl, project.token)">Copy</button>
+                  @if (copiedReviewLink() === project.id) {
+                    <span class="copy-confirm">Copied!</span>
+                  }
+                </p>
+                <p class="site">
+                  <a [href]="project.targetUrl" target="_blank" rel="noopener">{{ project.targetUrl }}</a>
+                </p>
+                <div class="stats">
+                  <span>{{ project.commentCount }} comments</span>
+                  <span>{{ project.openCount }} open</span>
+                  <span>{{ project.resolvedCount }} resolved</span>
+                </div>
+                <div class="actions">
+                  <a [routerLink]="['/admin/projects', project.id]">Manage comments</a>
+                  <a [href]="project.targetUrl" target="_blank" rel="noopener">Open live site</a>
+                </div>
+              }
             </article>
           } @empty {
             <article class="glass empty">No projects yet. Create one above to start.</article>
@@ -191,9 +218,82 @@ import { normalizeHttpUrl } from '../../core/utils/url.util';
       display: grid;
       gap: 0.6rem;
     }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
     .project-card h3 {
       margin: 0;
       font-size: 1.1rem;
+      flex: 1;
+    }
+    .card-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      flex-shrink: 0;
+    }
+    .icon-btn {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.2rem 0.4rem;
+      background: transparent;
+      color: var(--mist);
+      cursor: pointer;
+      font-size: 0.85rem;
+      line-height: 1;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .icon-btn:hover {
+      color: var(--ink);
+      border-color: var(--ink);
+    }
+    .icon-btn.danger:hover {
+      color: #ff6a4f;
+      border-color: #ff6a4f;
+    }
+    .delete-confirm {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .btn-danger-sm {
+      border: 1px solid #ff6a4f;
+      border-radius: 6px;
+      padding: 0.2rem 0.45rem;
+      background: transparent;
+      color: #ff6a4f;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .btn-ghost-sm {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.2rem 0.45rem;
+      background: transparent;
+      color: var(--mist);
+      cursor: pointer;
+      font-size: 0.78rem;
+    }
+    .edit-form {
+      display: grid;
+      gap: 0.6rem;
+    }
+    .edit-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-ghost {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 0.65rem 1rem;
+      background: transparent;
+      color: var(--mist);
+      cursor: pointer;
+      font-size: 0.9rem;
     }
     .project-id {
       margin: 0;
@@ -288,6 +388,15 @@ export class AdminComponent implements OnInit, OnDestroy {
   readonly comments = signal<ReviewComment[]>([]);
   readonly copiedProjectId = signal<string | null>(null);
   readonly copiedReviewLink = signal<string | null>(null);
+  readonly editingProjectId = signal<string | null>(null);
+  readonly editSaving = signal(false);
+  readonly editError = signal<string | null>(null);
+  readonly confirmingDeleteId = signal<string | null>(null);
+
+  readonly editForm = new FormGroup({
+    name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    targetUrl: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+  });
 
   readonly projectCards = computed(() =>
     this.projects().map((project) => {
@@ -387,6 +496,64 @@ export class AdminComponent implements OnInit, OnDestroy {
       }, 1600);
     } catch {
       this.error.set('Could not copy review link.');
+    }
+  }
+
+  startEdit(project: ReviewProject): void {
+    this.editForm.reset({ name: project.name, targetUrl: project.targetUrl });
+    this.editError.set(null);
+    this.confirmingDeleteId.set(null);
+    this.editingProjectId.set(project.id);
+  }
+
+  cancelEdit(): void {
+    this.editingProjectId.set(null);
+    this.editError.set(null);
+  }
+
+  async saveEdit(projectId: string): Promise<void> {
+    const name = this.editForm.controls.name.value.trim();
+    const targetUrl = normalizeHttpUrl(this.editForm.controls.targetUrl.value);
+    if (!name || !targetUrl) {
+      this.editError.set('Please enter a valid name and http(s) URL.');
+      return;
+    }
+
+    this.editSaving.set(true);
+    this.editError.set(null);
+    try {
+      await this.reviewRepository.updateProject(projectId, { name, targetUrl });
+      this.editingProjectId.set(null);
+    } catch (error: unknown) {
+      const code =
+        typeof error === 'object' && error !== null && 'code' in error
+          ? String((error as { code?: string }).code)
+          : 'unknown';
+      this.editError.set(`Could not save changes (${code}).`);
+    } finally {
+      this.editSaving.set(false);
+    }
+  }
+
+  requestDelete(projectId: string): void {
+    this.editingProjectId.set(null);
+    this.confirmingDeleteId.set(projectId);
+  }
+
+  cancelDelete(): void {
+    this.confirmingDeleteId.set(null);
+  }
+
+  async confirmDelete(projectId: string): Promise<void> {
+    try {
+      await this.reviewRepository.deleteProject(projectId);
+      this.confirmingDeleteId.set(null);
+    } catch (error: unknown) {
+      const code =
+        typeof error === 'object' && error !== null && 'code' in error
+          ? String((error as { code?: string }).code)
+          : 'unknown';
+      this.error.set(`Could not delete project (${code}).`);
     }
   }
 }
