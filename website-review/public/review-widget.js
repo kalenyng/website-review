@@ -1079,16 +1079,21 @@
         window.firebase.apps.find((item) => item.name === appName) ||
         window.firebase.initializeApp(cfg, appName);
       const firestore = window.firebase.firestore(app);
+      console.debug('[WebsiteReview] Resolving token:', token);
       const snapshot = await firestore
         .collection('projects')
         .where('token', '==', token)
         .limit(1)
         .get();
       if (snapshot.empty) {
+        console.warn('[WebsiteReview] No project found for token:', token);
         return null;
       }
-      return snapshot.docs[0].id;
-    } catch {
+      const projectId = snapshot.docs[0].id;
+      console.debug('[WebsiteReview] Token resolved to projectId:', projectId);
+      return projectId;
+    } catch (err) {
+      console.error('[WebsiteReview] Token resolution failed:', err);
       return null;
     }
   }
