@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAllowedStatus(status) {
+      return status in ['open', 'resolved'];
+    }
+
+    match /projects/{projectId} {
+      allow read, write: if true;
+    }
+
+    match /reviewSessions/{sessionId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly([
+          'projectId',
+          'targetUrl',
+          'shareToken',
+          'createdAt',
+          'createdBy',
+          'lastSnapshot'
+        ]) &&
+        request.resource.data.targetUrl is string &&
+        request.resource.data.shareToken is string;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly([
+          'projectId',
+          'sessionId',
+          'createdBy',
+          'message',
+          'x',
+          'y',
+          'authorDisplayName',
+          'body',
+          'status',
+          'anchor',
+          'createdAt',
+          'updatedAt'
+        ]) &&
+        request.resource.data.projectId is string &&
+        request.resource.data.body is string &&
+        request.resource.data.message is string &&
+        request.resource.data.createdBy is string &&
+        request.resource.data.x is number &&
+        request.resource.data.y is number &&
+        request.resource.data.authorDisplayName is string &&
+        isAllowedStatus(request.resource.data.status);
+      allow update: if request.resource.data.diff(resource.data).changedKeys().hasOnly([
+          'status',
+          'updatedAt'
+        ]) &&
+        isAllowedStatus(request.resource.data.status);
+      allow delete: if false;
+    }
+  }
+}
