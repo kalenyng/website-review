@@ -14,6 +14,11 @@ import { Observable } from 'rxjs';
 import { db } from './firebase-db';
 import { ReviewProject, ReviewSession } from '../models/review.models';
 
+function generateToken(length = 10): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
 @Injectable({ providedIn: 'root' })
 export class ReviewRepository {
   watchProjects(): Observable<ReviewProject[]> {
@@ -29,6 +34,7 @@ export class ReviewRepository {
                 id: item.id,
                 name: String(data['name'] ?? 'Untitled project'),
                 targetUrl: String(data['targetUrl'] ?? ''),
+                token: String(data['token'] ?? ''),
                 ownerId: data['ownerId'] ? String(data['ownerId']) : undefined,
                 createdAt: (data['createdAt'] as Timestamp).toDate(),
               } satisfies ReviewProject;
@@ -43,9 +49,11 @@ export class ReviewRepository {
 
   async createProject(input: { name: string; targetUrl: string }): Promise<ReviewProject> {
     const now = Timestamp.now();
+    const token = generateToken();
     const projectRef = await addDoc(collection(db, 'projects'), {
       name: input.name,
       targetUrl: input.targetUrl,
+      token,
       createdAt: now,
     });
 
@@ -53,6 +61,7 @@ export class ReviewRepository {
       id: projectRef.id,
       name: input.name,
       targetUrl: input.targetUrl,
+      token,
       createdAt: now.toDate(),
     };
   }
@@ -67,6 +76,25 @@ export class ReviewRepository {
       id: snapshot.id,
       name: String(data['name'] ?? 'Untitled project'),
       targetUrl: String(data['targetUrl'] ?? ''),
+      token: String(data['token'] ?? ''),
+      ownerId: data['ownerId'] ? String(data['ownerId']) : undefined,
+      createdAt: (data['createdAt'] as Timestamp).toDate(),
+    };
+  }
+
+  async getProjectByToken(token: string): Promise<ReviewProject | null> {
+    const q = query(collection(db, 'projects'), where('token', '==', token));
+    const snapshot = await getDocs(q);
+    const first = snapshot.docs[0];
+    if (!first) {
+      return null;
+    }
+    const data = first.data();
+    return {
+      id: first.id,
+      name: String(data['name'] ?? 'Untitled project'),
+      targetUrl: String(data['targetUrl'] ?? ''),
+      token: String(data['token'] ?? ''),
       ownerId: data['ownerId'] ? String(data['ownerId']) : undefined,
       createdAt: (data['createdAt'] as Timestamp).toDate(),
     };

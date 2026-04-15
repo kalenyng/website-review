@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -11,7 +10,7 @@ import { CommentThreadComponent } from '../review-workspace/components/comment-t
 @Component({
   selector: 'app-public-review',
   standalone: true,
-  imports: [CommonModule, CommentThreadComponent],
+  imports: [CommentThreadComponent],
   template: `
     <div class="workspace">
       <section class="viewer">

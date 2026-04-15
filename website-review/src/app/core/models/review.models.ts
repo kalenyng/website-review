@@ -17,6 +17,7 @@ export interface ReviewProject {
   id: string;
   name: string;
   targetUrl: string;
+  token: string;
   ownerId?: string;
   createdAt: Date;
 }

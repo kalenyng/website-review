@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -11,12 +10,12 @@ import { normalizeHttpUrl } from '../../core/utils/url.util';
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink],
   template: `
     <main class="dashboard">
       <section class="hero">
         <p class="eyebrow">Admin Control Panel</p>
-        <h1 class="gradient-text">Project Expedition Board</h1>
+        <h1 class="gradient-text">Project Board</h1>
         <p class="lead">
           Create projects, track live feedback, and jump straight into comment threads and live
           client sites.
@@ -49,6 +48,14 @@ import { normalizeHttpUrl } from '../../core/utils/url.util';
                 <code>{{ project.id }}</code>
                 <button type="button" class="copy-btn" (click)="copyProjectId(project.id)">Copy</button>
                 @if (copiedProjectId() === project.id) {
+                  <span class="copy-confirm">Copied!</span>
+                }
+              </p>
+              <p class="review-link">
+                <span>Review link:</span>
+                <code>{{ project.targetUrl }}?review={{ project.token }}</code>
+                <button type="button" class="copy-btn" (click)="copyReviewLink(project.id, project.targetUrl, project.token)">Copy</button>
+                @if (copiedReviewLink() === project.id) {
                   <span class="copy-confirm">Copied!</span>
                 }
               </p>
@@ -220,6 +227,23 @@ import { normalizeHttpUrl } from '../../core/utils/url.util';
       font-weight: 600;
       font-size: 0.78rem;
     }
+    .review-link {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      color: var(--mist);
+      font-size: 0.82rem;
+    }
+    .review-link code {
+      color: var(--ink);
+      background: color-mix(in srgb, var(--paper) 72%, white 28%);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.2rem 0.4rem;
+      overflow-wrap: anywhere;
+    }
     .site {
       margin: 0;
       min-height: 2.5rem;
@@ -263,6 +287,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   readonly projects = signal<ReviewProject[]>([]);
   readonly comments = signal<ReviewComment[]>([]);
   readonly copiedProjectId = signal<string | null>(null);
+  readonly copiedReviewLink = signal<string | null>(null);
 
   readonly projectCards = computed(() =>
     this.projects().map((project) => {
@@ -347,6 +372,21 @@ export class AdminComponent implements OnInit, OnDestroy {
       }, 1600);
     } catch {
       this.error.set('Could not copy project ID.');
+    }
+  }
+
+  async copyReviewLink(projectId: string, targetUrl: string, token: string): Promise<void> {
+    const link = `${targetUrl}?review=${token}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      this.copiedReviewLink.set(projectId);
+      window.setTimeout(() => {
+        if (this.copiedReviewLink() === projectId) {
+          this.copiedReviewLink.set(null);
+        }
+      }, 1600);
+    } catch {
+      this.error.set('Could not copy review link.');
     }
   }
 }

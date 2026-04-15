@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ReviewComment } from '../../../../core/models/review.models';
@@ -6,7 +5,7 @@ import { ReviewComment } from '../../../../core/models/review.models';
 @Component({
   selector: 'app-comment-thread',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   template: `
     <section class="thread">
       <h3>Comments</h3>
@@ -25,7 +24,7 @@ import { ReviewComment } from '../../../../core/models/review.models';
         @for (comment of comments; track comment.id) {
           <li [class.resolved]="comment.status === 'resolved'">
             <header>
-              <strong>{{ comment.createdBy }}</strong>
+              <span class="author">{{ comment.createdBy }}</span>
               <button type="button" (click)="toggleStatus.emit(comment)">
                 {{ comment.status === 'open' ? 'Resolve' : 'Reopen' }}
               </button>
@@ -75,6 +74,9 @@ import { ReviewComment } from '../../../../core/models/review.models';
       display: flex;
       justify-content: space-between;
       gap: 0.5rem;
+    }
+    .author {
+      font-weight: 600;
     }
     .empty {
       text-align: center;

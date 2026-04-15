@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, SecurityContext, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -12,7 +11,7 @@ import { CommentThreadComponent } from './components/comment-thread/comment-thre
 @Component({
   selector: 'app-review-workspace',
   standalone: true,
-  imports: [CommonModule, CommentThreadComponent],
+  imports: [CommentThreadComponent],
   template: `
     <div class="workspace">
       <section class="viewer">
@@ -39,17 +38,18 @@ import { CommentThreadComponent } from './components/comment-thread/comment-thre
               referrerpolicy="no-referrer"
               title="Review target"
             ></iframe>
-            <button
-              type="button"
-              class="pin"
-              *ngFor="let comment of comments()"
-              [style.left.%]="comment.x * 100"
-              [style.top.%]="comment.y * 100"
-              [class.resolved]="comment.status === 'resolved'"
-              (click)="$event.preventDefault()"
-            >
-              {{ comment.status === 'open' ? '!' : '✓' }}
-            </button>
+            @for (comment of comments(); track comment.id) {
+              <button
+                type="button"
+                class="pin"
+                [style.left.%]="comment.x * 100"
+                [style.top.%]="comment.y * 100"
+                [class.resolved]="comment.status === 'resolved'"
+                (click)="$event.preventDefault()"
+              >
+                {{ comment.status === 'open' ? '!' : '✓' }}
+              </button>
+            }
           </div>
           @if (commentError()) {
             <p class="error">{{ commentError() }}</p>

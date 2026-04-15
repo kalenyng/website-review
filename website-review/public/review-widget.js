@@ -1070,8 +1070,43 @@
     destroy: destroyWidget,
   };
 
+  async function resolveTokenToProjectId(token, firebaseConfig) {
+    try {
+      await ensureFirebaseLoaded();
+      const cfg = firebaseConfig || DEFAULT_FIREBASE_CONFIG;
+      const appName = `wr-widget-${cfg.projectId}`;
+      const app =
+        window.firebase.apps.find((item) => item.name === appName) ||
+        window.firebase.initializeApp(cfg, appName);
+      const firestore = window.firebase.firestore(app);
+      const snapshot = await firestore
+        .collection('projects')
+        .where('token', '==', token)
+        .limit(1)
+        .get();
+      if (snapshot.empty) {
+        return null;
+      }
+      return snapshot.docs[0].id;
+    } catch {
+      return null;
+    }
+  }
+
   const autoScript = document.currentScript;
-  if (autoScript && autoScript.dataset && autoScript.dataset.projectId) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const reviewToken = urlParams.get('review');
+
+  if (reviewToken) {
+    resolveTokenToProjectId(reviewToken).then((projectId) => {
+      if (!projectId) {
+        return;
+      }
+      initWidget({ projectId }).catch((error) => {
+        console.error(error);
+      });
+    });
+  } else if (autoScript && autoScript.dataset && autoScript.dataset.projectId) {
     initWidget({
       projectId: autoScript.dataset.projectId,
     }).catch((error) => {
