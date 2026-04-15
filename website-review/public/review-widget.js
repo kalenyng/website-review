@@ -1093,15 +1093,19 @@
     }
   }
 
+  const SESSION_TOKEN_KEY = 'wr-review-token';
+
   const autoScript = document.currentScript;
   const urlParams = new URLSearchParams(window.location.search);
-  const reviewToken = urlParams.get('review');
+  const reviewToken = urlParams.get('review') || sessionStorage.getItem(SESSION_TOKEN_KEY);
 
   if (reviewToken) {
     resolveTokenToProjectId(reviewToken).then((projectId) => {
       if (!projectId) {
+        sessionStorage.removeItem(SESSION_TOKEN_KEY);
         return;
       }
+      sessionStorage.setItem(SESSION_TOKEN_KEY, reviewToken);
       initWidget({ projectId }).catch((error) => {
         console.error(error);
       });
