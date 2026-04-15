@@ -1079,7 +1079,7 @@
         window.firebase.apps.find((item) => item.name === appName) ||
         window.firebase.initializeApp(cfg, appName);
       const firestore = window.firebase.firestore(app);
-      console.debug('[WebsiteReview] Resolving token:', token);
+      console.debug('[WebsiteReview] Resolving token:', token, '| Firebase project:', cfg.projectId);
       const snapshot = await firestore
         .collection('projects')
         .where('token', '==', token)
