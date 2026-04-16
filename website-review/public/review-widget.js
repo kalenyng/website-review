@@ -292,33 +292,56 @@
         width: min(420px, calc(100vw - 24px));
         background: #fff;
         color: #101828;
-        border-radius: 12px;
+        border-radius: 14px;
         box-shadow: 0 20px 40px rgba(16, 24, 40, 0.25);
-        padding: 16px;
+        padding: 24px;
       }
       #${NAME_MODAL_ID} h3 {
         margin: 0 0 6px;
+        font-size: 18px;
+        font-weight: 700;
+        font-family: Inter, Arial, sans-serif;
+        color: #101828;
       }
       #${NAME_MODAL_ID} p {
-        margin: 0 0 10px;
+        margin: 0 0 14px;
         color: #475467;
         font-size: 14px;
+        font-family: Inter, Arial, sans-serif;
+        line-height: 1.5;
       }
       #${NAME_MODAL_ID} .wr-name-input {
         width: 100%;
         box-sizing: border-box;
         border: 1px solid #d0d5dd;
         border-radius: 8px;
-        padding: 8px 10px;
-        margin-bottom: 10px;
+        padding: 9px 12px;
+        margin-bottom: 14px;
+        font-family: Inter, Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #101828;
+        background: #ffffff;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      #${NAME_MODAL_ID} .wr-name-input::placeholder {
+        color: #98a2b3;
+      }
+      #${NAME_MODAL_ID} .wr-name-input:focus {
+        border-color: #d92d20;
+        box-shadow: 0 0 0 3px rgba(217, 45, 32, 0.12);
       }
       #${NAME_MODAL_ID} .wr-primary {
         border: 1px solid #d92d20;
         background: #d92d20;
         color: #fff;
         border-radius: 8px;
-        padding: 8px 12px;
+        padding: 9px 16px;
         cursor: pointer;
+        font-family: Inter, Arial, sans-serif;
+        font-size: 14px;
+        font-weight: 600;
       }
       #${COMMENT_MODAL_ID} {
         position: fixed;
@@ -334,9 +357,9 @@
         width: min(480px, calc(100vw - 24px));
         background: #fff;
         color: #101828;
-        border-radius: 12px;
+        border-radius: 14px;
         box-shadow: 0 20px 40px rgba(16, 24, 40, 0.25);
-        padding: 16px;
+        padding: 24px;
       }
       #${COMMENT_MODAL_ID} h3 {
         margin: 0 0 6px;
@@ -356,19 +379,24 @@
         box-sizing: border-box;
         border: 1px solid #d0d5dd;
         border-radius: 8px;
-        padding: 10px;
-        min-height: 96px;
-        margin-bottom: 10px;
+        padding: 10px 12px;
+        min-height: 110px;
+        margin-bottom: 14px;
         resize: vertical;
-        font: inherit;
-        color: #101828;
-        background: #fff;
         font-family: Inter, Arial, sans-serif;
         font-size: 14px;
-        line-height: 1.4;
+        line-height: 1.5;
+        color: #101828;
+        background: #ffffff;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
       }
       #${COMMENT_MODAL_ID} .wr-comment-input::placeholder {
-        color: #667085;
+        color: #98a2b3;
+      }
+      #${COMMENT_MODAL_ID} .wr-comment-input:focus {
+        border-color: #d92d20;
+        box-shadow: 0 0 0 3px rgba(217, 45, 32, 0.12);
       }
       #${COMMENT_MODAL_ID} .wr-modal-actions {
         display: flex;

@@ -13,14 +13,13 @@ import { normalizeHttpUrl } from '../../core/utils/url.util';
   imports: [ReactiveFormsModule, RouterLink],
   template: `
     <main class="dashboard">
-      <section class="hero">
-        <p class="eyebrow">Admin Control Panel</p>
-        <h1 class="gradient-text">Project Board</h1>
-        <p class="lead">
-          Create projects, track live feedback, and jump straight into comment threads and live
-          client sites.
-        </p>
-      </section>
+      <div class="page-header">
+        <div>
+          <p class="eyebrow">Admin</p>
+          <h1 class="gradient-text">Projects</h1>
+          <p class="lead">Create projects, track live feedback, and manage client sites.</p>
+        </div>
+      </div>
 
       <section class="glass create-card">
         <h2>Create New Project</h2>
@@ -56,7 +55,7 @@ import { normalizeHttpUrl } from '../../core/utils/url.util';
                 </form>
               } @else {
                 <div class="card-header">
-                  <h3>{{ project.name }}</h3>
+                  <h3><a class="clickable" [routerLink]="['/projects', project.id]">{{ project.name }}</a></h3>
                   <div class="card-controls">
                     <button type="button" class="icon-btn" title="Edit" (click)="startEdit(project)">✎</button>
                     @if (confirmingDeleteId() === project.id) {
@@ -94,8 +93,8 @@ import { normalizeHttpUrl } from '../../core/utils/url.util';
                   <span>{{ project.resolvedCount }} resolved</span>
                 </div>
                 <div class="actions">
-                  <a [routerLink]="['/admin/projects', project.id]">Manage comments</a>
-                  <a [href]="project.targetUrl" target="_blank" rel="noopener">Open live site</a>
+                  <a class="clickable" [routerLink]="['/projects', project.id]">Manage comments</a>
+                  <a class="clickable" [href]="project.targetUrl" target="_blank" rel="noopener">Open live site</a>
                 </div>
               }
             </article>
@@ -108,32 +107,36 @@ import { normalizeHttpUrl } from '../../core/utils/url.util';
   `,
   styles: `
     .dashboard {
-      max-width: 80rem;
+      max-width: 72rem;
       margin: 0 auto;
-      padding: 5rem 1rem;
+      padding: 3rem 1.5rem 5rem;
       display: grid;
       gap: 1.5rem;
     }
-    .hero {
-      max-width: 65ch;
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
     .eyebrow {
       margin: 0;
       color: var(--mist);
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
     }
-    .hero h1 {
-      margin: 0.35rem 0 0.6rem;
-      font-size: clamp(2rem, 4vw, 3rem);
-      line-height: 1.08;
+    .page-header h1 {
+      margin: 0.2rem 0 0.3rem;
+      font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+      line-height: 1.1;
     }
     .lead {
       margin: 0;
       color: var(--mist);
-      max-width: 65ch;
-      line-height: 1.65;
+      font-size: 0.9rem;
+      line-height: 1.55;
     }
     .glass {
       background: var(--glass);
@@ -366,8 +369,6 @@ import { normalizeHttpUrl } from '../../core/utils/url.util';
       flex-wrap: wrap;
     }
     .actions a {
-      color: var(--ember);
-      text-decoration: none;
       font-weight: 600;
       font-size: 0.9rem;
     }

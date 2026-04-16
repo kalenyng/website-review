@@ -1,21 +1,57 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/login/login.component').then((m) => m.LoginComponent),
+  },
+  {
     path: '',
-    pathMatch: 'full',
-    redirectTo: 'admin',
-  },
-  {
-    path: 'admin',
+    canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/admin/admin.component').then((m) => m.AdminComponent),
-  },
-  {
-    path: 'admin/projects/:projectId',
-    loadComponent: () =>
-      import('./features/project-detail/project-detail.component').then(
-        (m) => m.ProjectDetailComponent,
-      ),
+      import('./features/admin/admin-layout.component').then((m) => m.AdminLayoutComponent),
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'workspace',
+      },
+      {
+        path: 'workspace',
+        loadComponent: () =>
+          import('./features/clients/clients.component').then((m) => m.ClientsComponent),
+      },
+      {
+        path: 'projects',
+        loadComponent: () =>
+          import('./features/admin/admin.component').then((m) => m.AdminComponent),
+      },
+      {
+        path: 'projects/:projectId',
+        loadComponent: () =>
+          import('./features/project-detail/project-detail.component').then(
+            (m) => m.ProjectDetailComponent,
+          ),
+      },
+      {
+        path: 'workspace/:clientId',
+        loadComponent: () =>
+          import('./features/client-detail/client-detail.component').then(
+            (m) => m.ClientDetailComponent,
+          ),
+      },
+      {
+        path: 'billing',
+        loadComponent: () =>
+          import('./features/invoices/invoices.component').then((m) => m.InvoicesComponent),
+      },
+      {
+        path: 'care-plans',
+        loadComponent: () =>
+          import('./features/care-plans/care-plans.component').then((m) => m.CarePlansComponent),
+      },
+    ],
   },
 ];

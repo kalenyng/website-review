@@ -32,6 +32,14 @@ export interface ReviewSession {
   lastSnapshot?: string;
 }
 
+export interface Client {
+  id: string;
+  name: string;
+  email: string;
+  notes?: string;
+  createdAt: Date;
+}
+
 export interface ReviewComment {
   id: string;
   projectId: string;

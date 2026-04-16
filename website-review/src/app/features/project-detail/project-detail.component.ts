@@ -12,7 +12,7 @@ import { ReviewComment, ReviewProject } from '../../core/models/review.models';
   imports: [CommonModule, RouterLink],
   template: `
     <main class="page">
-      <a class="back" routerLink="/admin">← Back to projects</a>
+      <a class="back" routerLink="/projects">← Back to Projects</a>
 
       @if (project()) {
         <section class="glass header">
@@ -76,10 +76,6 @@ import { ReviewComment, ReviewProject } from '../../core/models/review.models';
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow);
       backdrop-filter: blur(8px);
-      transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .glass:hover {
-      transform: translateY(-2px);
     }
     .header {
       padding: 1rem 1.1rem;

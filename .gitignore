@@ -1,0 +1,3 @@
+.vercel
+.env*.local
+website-review/src/environments/environment.ts

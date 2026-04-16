@@ -6,13 +6,21 @@
   box-sizing: border-box;
 }
 
+html {
+  min-height: 100%;
+  background: var(--paper);
+}
+
 html,
 body {
   margin: 0;
-  min-height: 100%;
-  background: var(--paper);
   color: var(--ink);
   font-family: var(--font-body);
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--paper);
 }
 
 h1,
@@ -26,4 +34,43 @@ h4 {
 code,
 pre {
   font-family: var(--font-mono);
+}
+
+/* ─── Shared interaction pattern ─────────────────────────────────────────── */
+/* Orange = click to navigate. Apply to any <a> or <button> that routes. */
+.clickable {
+  color: var(--ember);
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  transition: text-decoration-color 0.15s;
+}
+.clickable:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.clickable:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ─── Route content fade-in ───────────────────────────────────────────────── */
+/* Applies whenever a new <main> is inserted by the router */
+@keyframes route-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+main {
+  animation: route-in 0.18s ease both;
 }
