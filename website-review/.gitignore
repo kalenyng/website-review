@@ -44,6 +44,10 @@ __screenshots__/
 .env.local
 .env*.local
 
+# Generated files — created at build time by scripts/set-env.js
+src/environments/environment.ts
+public/review-widget.js
+
 # System files
 .DS_Store
 Thumbs.db

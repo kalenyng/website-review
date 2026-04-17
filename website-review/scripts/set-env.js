@@ -36,3 +36,20 @@ const content = `export const environment = {
 
 fs.writeFileSync(targetPath, content);
 console.log(`Environment file generated at ${targetPath}`);
+
+// Generate review-widget.js from template
+const widgetTemplatePath = path.resolve(__dirname, './review-widget.template.js');
+const widgetOutputPath = path.resolve(__dirname, '../public/review-widget.js');
+
+if (fs.existsSync(widgetTemplatePath)) {
+  let widgetContent = fs.readFileSync(widgetTemplatePath, 'utf8');
+  widgetContent = widgetContent
+    .replace(/__FIREBASE_API_KEY__/g, process.env.FIREBASE_API_KEY || '')
+    .replace(/__FIREBASE_AUTH_DOMAIN__/g, process.env.FIREBASE_AUTH_DOMAIN || '')
+    .replace(/__FIREBASE_PROJECT_ID__/g, process.env.FIREBASE_PROJECT_ID || '')
+    .replace(/__FIREBASE_STORAGE_BUCKET__/g, process.env.FIREBASE_STORAGE_BUCKET || '')
+    .replace(/__FIREBASE_MESSAGING_SENDER_ID__/g, process.env.FIREBASE_MESSAGING_SENDER_ID || '')
+    .replace(/__FIREBASE_APP_ID__/g, process.env.FIREBASE_APP_ID || '');
+  fs.writeFileSync(widgetOutputPath, widgetContent);
+  console.log(`Widget file generated at ${widgetOutputPath}`);
+}

@@ -1,11 +1,11 @@
 (function () {
   const DEFAULT_FIREBASE_CONFIG = {
-    apiKey: 'AIzaSyAWzDSFsaNTRSONHzF8oaX2UJGrOCMRSuI',
-    authDomain: 'websitereview-817d4.firebaseapp.com',
-    projectId: 'websitereview-817d4',
-    storageBucket: 'websitereview-817d4.firebasestorage.app',
-    messagingSenderId: '243157984622',
-    appId: '1:243157984622:web:e2c53e4a7aaf450aa8cd7f',
+    apiKey: '__FIREBASE_API_KEY__',
+    authDomain: '__FIREBASE_AUTH_DOMAIN__',
+    projectId: '__FIREBASE_PROJECT_ID__',
+    storageBucket: '__FIREBASE_STORAGE_BUCKET__',
+    messagingSenderId: '__FIREBASE_MESSAGING_SENDER_ID__',
+    appId: '__FIREBASE_APP_ID__',
   };
 
   const FIREBASE_APP_COMPAT = 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js';
