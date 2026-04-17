@@ -26,6 +26,7 @@
   let currentUser = '';
   let comments = [];
   let selectedCommentId = null;
+  let activeReplyId = null;
   let isSidebarCollapsed = false;
   let pinsRoot = null;
   let sidebarRoot = null;
@@ -221,8 +222,8 @@
         background: #fff;
       }
       #${SIDEBAR_ID} .wr-comment-item.wr-active {
-        border-color: #d92d20;
-        background: #fff5f4;
+        border-color: #1d4ed8;
+        background: #eff6ff;
       }
       #${SIDEBAR_ID} .wr-comment-row {
         display: flex;
@@ -234,7 +235,7 @@
         width: 22px;
         height: 22px;
         border-radius: 999px;
-        background: #d92d20;
+        background: #1d4ed8;
         color: #fff;
         font-weight: 700;
         font-size: 11px;
@@ -329,12 +330,12 @@
         color: #98a2b3;
       }
       #${NAME_MODAL_ID} .wr-name-input:focus {
-        border-color: #d92d20;
-        box-shadow: 0 0 0 3px rgba(217, 45, 32, 0.12);
+        border-color: #1d4ed8;
+        box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
       }
       #${NAME_MODAL_ID} .wr-primary {
-        border: 1px solid #d92d20;
-        background: #d92d20;
+        border: 1px solid #1d4ed8;
+        background: #1d4ed8;
         color: #fff;
         border-radius: 8px;
         padding: 9px 16px;
@@ -395,8 +396,8 @@
         color: #98a2b3;
       }
       #${COMMENT_MODAL_ID} .wr-comment-input:focus {
-        border-color: #d92d20;
-        box-shadow: 0 0 0 3px rgba(217, 45, 32, 0.12);
+        border-color: #1d4ed8;
+        box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
       }
       #${COMMENT_MODAL_ID} .wr-modal-actions {
         display: flex;
@@ -415,8 +416,8 @@
         font-weight: 600;
       }
       #${COMMENT_MODAL_ID} .wr-primary {
-        border: 1px solid #d92d20;
-        background: #d92d20;
+        border: 1px solid #1d4ed8;
+        background: #1d4ed8;
         color: #fff;
         border-radius: 8px;
         padding: 8px 12px;
@@ -463,6 +464,91 @@
       }
       #${PINS_ID} .wr-pin.wr-active {
         box-shadow: 0 0 0 3px rgba(217, 45, 32, 0.22), 0 2px 8px rgba(16, 24, 40, 0.3);
+      }
+      #${SIDEBAR_ID} .wr-replies {
+        list-style: none;
+        margin: 8px 0 6px 12px;
+        padding: 0 0 0 10px;
+        border-left: 2px solid #eaecf0;
+        display: grid;
+        gap: 6px;
+      }
+      #${SIDEBAR_ID} .wr-reply-item {
+        font-size: 12px;
+      }
+      #${SIDEBAR_ID} .wr-reply-item .wr-comment-user {
+        font-size: 12px;
+      }
+      #${SIDEBAR_ID} .wr-reply-item .wr-comment-message {
+        margin: 3px 0 0;
+        font-size: 12px;
+        color: #475467;
+      }
+      #${SIDEBAR_ID} .wr-reply-item .wr-comment-date {
+        font-size: 10px;
+      }
+      #${SIDEBAR_ID} .wr-reply-btn {
+        margin-top: 6px;
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: 12px;
+        font-family: Inter, Arial, sans-serif;
+        color: #1d4ed8;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      #${SIDEBAR_ID} .wr-reply-btn:hover {
+        text-decoration: underline;
+      }
+      #${SIDEBAR_ID} .wr-reply-form {
+        margin-top: 8px;
+        display: grid;
+        gap: 6px;
+      }
+      #${SIDEBAR_ID} .wr-reply-input {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #d0d5dd;
+        border-radius: 8px;
+        padding: 8px 10px;
+        min-height: 64px;
+        resize: vertical;
+        font-family: Inter, Arial, sans-serif;
+        font-size: 13px;
+        color: #101828;
+        background: #ffffff;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      #${SIDEBAR_ID} .wr-reply-input:focus {
+        border-color: #1d4ed8;
+        box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+      }
+      #${SIDEBAR_ID} .wr-reply-actions {
+        display: flex;
+        gap: 6px;
+      }
+      #${SIDEBAR_ID} .wr-reply-submit {
+        border: 1px solid #1d4ed8;
+        background: #1d4ed8;
+        color: #fff;
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-family: Inter, Arial, sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      #${SIDEBAR_ID} .wr-reply-cancel {
+        border: 1px solid #d0d5dd;
+        background: #fff;
+        color: #344054;
+        border-radius: 6px;
+        padding: 5px 10px;
+        font-family: Inter, Arial, sans-serif;
+        font-size: 12px;
+        cursor: pointer;
       }
     `;
     document.head.appendChild(style);
@@ -540,7 +626,8 @@
     }
     pinsRoot.innerHTML = '';
 
-    comments.forEach((comment, index) => {
+    const topLevel = comments.filter((c) => !c.parentId);
+    topLevel.forEach((comment, index) => {
       const pos = resolvePinPosition(comment);
       const pin = document.createElement('button');
       pin.type = 'button';
@@ -556,11 +643,84 @@
         event.preventDefault();
         event.stopPropagation();
         selectedCommentId = comment.id;
+        scrollToComment(comment);
         renderPins();
         renderSidebar();
       });
       pinsRoot.appendChild(pin);
     });
+  }
+
+  function scrollToComment(comment) {
+    if (comment.selector) {
+      const el = document.querySelector(comment.selector);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    }
+    const y = Number(comment.pageY || 0);
+    if (y > 0) {
+      window.scrollTo({ top: Math.max(0, y - 120), behavior: 'smooth' });
+    }
+  }
+
+  function buildInlineReplyForm(parentId) {
+    const form = document.createElement('div');
+    form.className = 'wr-reply-form';
+
+    const textarea = document.createElement('textarea');
+    textarea.className = 'wr-reply-input';
+    textarea.placeholder = 'Write a reply...';
+
+    const actions = document.createElement('div');
+    actions.className = 'wr-reply-actions';
+
+    const submitBtn = document.createElement('button');
+    submitBtn.type = 'button';
+    submitBtn.className = 'wr-reply-submit';
+    submitBtn.textContent = 'Post reply';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'wr-reply-cancel';
+    cancelBtn.textContent = 'Cancel';
+
+    submitBtn.addEventListener('click', async (event) => {
+      event.stopPropagation();
+      const text = textarea.value.trim();
+      if (!text) {
+        textarea.focus();
+        return;
+      }
+      await ensureUserNameBeforeUsing();
+      submitReply(parentId, text);
+    });
+
+    cancelBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      activeReplyId = null;
+      renderSidebar();
+    });
+
+    textarea.addEventListener('keydown', (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+        event.preventDefault();
+        submitBtn.click();
+      }
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        cancelBtn.click();
+      }
+    });
+
+    actions.appendChild(submitBtn);
+    actions.appendChild(cancelBtn);
+    form.appendChild(textarea);
+    form.appendChild(actions);
+
+    setTimeout(() => textarea.focus(), 0);
+    return form;
   }
 
   function renderSidebar() {
@@ -572,10 +732,13 @@
       return;
     }
 
-    sidebarCountEl.textContent = `${comments.length} comment${comments.length === 1 ? '' : 's'}`;
+    const topLevel = comments.filter((c) => !c.parentId);
+    const replies = comments.filter((c) => !!c.parentId);
+
+    sidebarCountEl.textContent = `${topLevel.length} comment${topLevel.length === 1 ? '' : 's'}`;
     sidebarListEl.innerHTML = '';
 
-    if (comments.length === 0) {
+    if (topLevel.length === 0) {
       const empty = document.createElement('li');
       empty.className = 'wr-empty';
       empty.textContent = 'No comments yet. Switch to Comment mode and click anywhere.';
@@ -583,7 +746,15 @@
       return;
     }
 
-    comments.forEach((comment, index) => {
+    topLevel.forEach((comment, index) => {
+      const threadReplies = replies
+        .filter((r) => r.parentId === comment.id)
+        .sort((a, b) => {
+          const at = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+          const bt = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+          return at - bt;
+        });
+
       const li = document.createElement('li');
       li.className = 'wr-comment-item';
       if (comment.id === selectedCommentId) {
@@ -591,6 +762,7 @@
       }
       li.addEventListener('click', () => {
         selectedCommentId = comment.id;
+        scrollToComment(comment);
         renderPins();
         renderSidebar();
       });
@@ -632,6 +804,53 @@
       li.appendChild(row);
       li.appendChild(message);
       li.appendChild(status);
+
+      // Replies
+      if (threadReplies.length > 0) {
+        const repliesEl = document.createElement('ul');
+        repliesEl.className = 'wr-replies';
+        threadReplies.forEach((reply) => {
+          const replyLi = document.createElement('li');
+          replyLi.className = 'wr-reply-item';
+
+          const replyRow = document.createElement('div');
+          replyRow.className = 'wr-comment-row';
+          const replyUser = document.createElement('span');
+          replyUser.className = 'wr-comment-user';
+          replyUser.textContent = reply.createdBy || 'Guest';
+          const replyDate = document.createElement('span');
+          replyDate.className = 'wr-comment-date';
+          replyDate.textContent = formatTimestamp(reply);
+          replyRow.appendChild(replyUser);
+          replyRow.appendChild(replyDate);
+
+          const replyMsg = document.createElement('div');
+          replyMsg.className = 'wr-comment-message';
+          replyMsg.textContent = reply.message || '';
+
+          replyLi.appendChild(replyRow);
+          replyLi.appendChild(replyMsg);
+          repliesEl.appendChild(replyLi);
+        });
+        li.appendChild(repliesEl);
+      }
+
+      // Reply button or inline form
+      if (activeReplyId === comment.id) {
+        li.appendChild(buildInlineReplyForm(comment.id));
+      } else {
+        const replyBtn = document.createElement('button');
+        replyBtn.type = 'button';
+        replyBtn.className = 'wr-reply-btn';
+        replyBtn.textContent = `Reply${threadReplies.length > 0 ? ` (${threadReplies.length})` : ''}`;
+        replyBtn.addEventListener('click', (event) => {
+          event.stopPropagation();
+          activeReplyId = comment.id;
+          renderSidebar();
+        });
+        li.appendChild(replyBtn);
+      }
+
       sidebarListEl.appendChild(li);
     });
   }
@@ -848,6 +1067,20 @@
       document.body.appendChild(commentModalRoot);
       textarea.focus();
     });
+  }
+
+  function submitReply(parentId, text) {
+    db.collection('comments').add({
+      projectId: currentProjectId,
+      parentId,
+      createdBy: currentUser,
+      message: text,
+      status: 'open',
+      createdAt: window.firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: window.firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    activeReplyId = null;
+    // onSnapshot will call renderSidebar() once Firestore confirms the write
   }
 
   async function handleDocumentClick(event) {

@@ -3,7 +3,9 @@ import {
   Timestamp,
   addDoc,
   collection,
+  deleteDoc,
   doc,
+  getDocs,
   onSnapshot,
   query,
   updateDoc,
@@ -29,6 +31,7 @@ export class CommentRepository {
                 id: item.id,
                 projectId: String(data['projectId'] ?? ''),
                 sessionId: data['sessionId'] ? String(data['sessionId']) : undefined,
+                parentId: data['parentId'] ? String(data['parentId']) : undefined,
                 createdBy: String(data['createdBy'] ?? data['authorDisplayName'] ?? 'Guest'),
                 message: String(data['message'] ?? data['body'] ?? ''),
                 status: (data['status'] as CommentStatus) ?? 'open',
@@ -60,6 +63,7 @@ export class CommentRepository {
                 id: item.id,
                 projectId: String(data['projectId']),
                 sessionId: data['sessionId'] ? String(data['sessionId']) : undefined,
+                parentId: data['parentId'] ? String(data['parentId']) : undefined,
                 createdBy: String(data['createdBy'] ?? data['authorDisplayName'] ?? 'Guest'),
                 message: String(data['message'] ?? data['body'] ?? ''),
                 status: (data['status'] as CommentStatus) ?? 'open',
@@ -91,6 +95,7 @@ export class CommentRepository {
                 id: item.id,
                 projectId: String(data['projectId'] ?? ''),
                 sessionId: String(data['sessionId']),
+                parentId: data['parentId'] ? String(data['parentId']) : undefined,
                 createdBy: String(data['createdBy'] ?? data['authorDisplayName'] ?? 'Guest'),
                 message: String(data['message'] ?? data['body'] ?? ''),
                 status: (data['status'] as CommentStatus) ?? 'open',
@@ -112,13 +117,14 @@ export class CommentRepository {
   async addComment(input: {
     projectId?: string;
     sessionId: string;
+    parentId?: string;
     authorDisplayName?: string;
     createdBy?: string;
     body?: string;
     message?: string;
     x?: number;
     y?: number;
-    anchor: CommentAnchor;
+    anchor?: CommentAnchor;
   }): Promise<void> {
     const now = Timestamp.now();
     const createdBy = sanitizeCommentBody(input.createdBy ?? input.authorDisplayName ?? 'Guest');
@@ -126,6 +132,7 @@ export class CommentRepository {
     await addDoc(collection(db, 'comments'), {
       sessionId: input.sessionId,
       projectId: input.projectId ?? '',
+      ...(input.parentId ? { parentId: input.parentId } : {}),
       createdBy,
       authorDisplayName: createdBy,
       message,
@@ -133,7 +140,7 @@ export class CommentRepository {
       status: 'open',
       x: input.x ?? 0.5,
       y: input.y ?? 0.5,
-      anchor: input.anchor,
+      ...(input.anchor ? { anchor: input.anchor } : {}),
       createdAt: now,
       updatedAt: now,
     });
@@ -143,21 +150,23 @@ export class CommentRepository {
     projectId: string;
     createdBy: string;
     message: string;
-    x: number;
-    y: number;
+    parentId?: string;
+    x?: number;
+    y?: number;
   }): Promise<void> {
     const now = Timestamp.now();
     const createdBy = sanitizeCommentBody(input.createdBy);
     const message = sanitizeCommentBody(input.message);
     await addDoc(collection(db, 'comments'), {
       projectId: input.projectId,
+      ...(input.parentId ? { parentId: input.parentId } : {}),
       createdBy,
       authorDisplayName: createdBy,
       message,
       body: message,
       status: 'open',
-      x: input.x,
-      y: input.y,
+      x: input.x ?? 0,
+      y: input.y ?? 0,
       createdAt: now,
       updatedAt: now,
     });
@@ -168,5 +177,13 @@ export class CommentRepository {
       status,
       updatedAt: Timestamp.now(),
     });
+  }
+
+  async deleteComment(commentId: string): Promise<void> {
+    await deleteDoc(doc(db, 'comments', commentId));
+    const repliesSnap = await getDocs(
+      query(collection(db, 'comments'), where('parentId', '==', commentId)),
+    );
+    await Promise.all(repliesSnap.docs.map((d) => deleteDoc(d.ref)));
   }
 }

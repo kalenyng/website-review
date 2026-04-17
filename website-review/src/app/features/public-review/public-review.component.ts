@@ -4,7 +4,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { CommentRepository } from '../../core/data/comment.repository';
 import { ReviewRepository } from '../../core/data/review.repository';
-import { ReviewComment, ReviewSession } from '../../core/models/review.models';
+import { ReviewComment, ReviewSession, CommentAnchor } from '../../core/models/review.models';
 import { CommentThreadComponent } from '../review-workspace/components/comment-thread/comment-thread.component';
 
 @Component({
@@ -28,6 +28,7 @@ import { CommentThreadComponent } from '../review-workspace/components/comment-t
       <app-comment-thread
         [comments]="comments()"
         (add)="createComment($event.authorDisplayName, $event.body)"
+        (addReply)="createReply($event.parentId, $event.authorDisplayName, $event.body)"
         (toggleStatus)="toggleStatus($event)"
       />
       @if (commentError()) {
@@ -141,6 +142,38 @@ export class PublicReviewComponent implements OnInit, OnDestroy {
           ? String((error as { code?: string }).code)
           : 'unknown';
       this.commentError.set(`Unable to post comment (${code}).`);
+    }
+  }
+
+  async createReply(parentId: string, authorDisplayName: string, body: string): Promise<void> {
+    const session = this.session();
+    if (!session) return;
+
+    const parent = this.comments().find((c) => c.id === parentId);
+    const anchor: CommentAnchor = parent?.anchor ?? {
+      cssPath: 'body',
+      textSnippet: '',
+      rect: { x: 0, y: 0, width: 0, height: 0 },
+    };
+
+    try {
+      await this.commentRepository.addComment({
+        projectId: session.projectId,
+        sessionId: session.id,
+        parentId,
+        createdBy: authorDisplayName,
+        message: body,
+        x: parent?.x ?? 0,
+        y: parent?.y ?? 0,
+        anchor,
+      });
+      this.commentError.set(null);
+    } catch (error: unknown) {
+      const code =
+        typeof error === 'object' && error !== null && 'code' in error
+          ? String((error as { code?: string }).code)
+          : 'unknown';
+      this.commentError.set(`Unable to post reply (${code}).`);
     }
   }
 

@@ -8,6 +8,20 @@ export const routes: Routes = [
       import('./features/login/login.component').then((m) => m.LoginComponent),
   },
   {
+    path: 'review-workspace/:sessionId',
+    loadComponent: () =>
+      import('./features/review-workspace/review-workspace.component').then(
+        (m) => m.ReviewWorkspaceComponent,
+      ),
+  },
+  {
+    path: 'public-review/:shareToken',
+    loadComponent: () =>
+      import('./features/public-review/public-review.component').then(
+        (m) => m.PublicReviewComponent,
+      ),
+  },
+  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () =>

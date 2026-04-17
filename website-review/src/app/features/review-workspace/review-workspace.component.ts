@@ -62,6 +62,7 @@ import { CommentThreadComponent } from './components/comment-thread/comment-thre
       <app-comment-thread
         [comments]="comments()"
         (add)="createComment($event.authorDisplayName, $event.body)"
+        (addReply)="createReply($event.parentId, $event.authorDisplayName, $event.body)"
         (toggleStatus)="toggleStatus($event)"
       />
     </div>
@@ -239,6 +240,38 @@ export class ReviewWorkspaceComponent implements OnInit, OnDestroy {
     }
 
     this.pendingAnchor = null;
+  }
+
+  async createReply(parentId: string, authorDisplayName: string, body: string): Promise<void> {
+    const session = this.session();
+    if (!session) return;
+
+    const parent = this.comments().find((c) => c.id === parentId);
+    const anchor: CommentAnchor = parent?.anchor ?? {
+      cssPath: 'body',
+      textSnippet: '',
+      rect: { x: 0, y: 0, width: 0, height: 0 },
+    };
+
+    try {
+      await this.commentRepository.addComment({
+        projectId: session.projectId,
+        sessionId: session.id,
+        parentId,
+        createdBy: authorDisplayName,
+        message: this.sanitizer.sanitize(SecurityContext.HTML, body) ?? body,
+        x: parent?.x ?? 0,
+        y: parent?.y ?? 0,
+        anchor,
+      });
+      this.commentError.set(null);
+    } catch (error: unknown) {
+      const code =
+        typeof error === 'object' && error !== null && 'code' in error
+          ? String((error as { code?: string }).code)
+          : 'unknown';
+      this.commentError.set(`Unable to post reply (${code}).`);
+    }
   }
 
   async toggleStatus(comment: ReviewComment): Promise<void> {

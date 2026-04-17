@@ -44,6 +44,7 @@ export interface ReviewComment {
   id: string;
   projectId: string;
   sessionId?: string;
+  parentId?: string;
   createdBy: string;
   message: string;
   status: CommentStatus;

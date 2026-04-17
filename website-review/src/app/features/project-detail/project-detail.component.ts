@@ -1,15 +1,17 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { doc, getDoc } from 'firebase/firestore';
 import { Subscription } from 'rxjs';
+import { auth, db } from '../../core/data/firebase-db';
 import { CommentRepository } from '../../core/data/comment.repository';
 import { ReviewRepository } from '../../core/data/review.repository';
 import { ReviewComment, ReviewProject } from '../../core/models/review.models';
+import { CommentThreadComponent } from '../review-workspace/components/comment-thread/comment-thread.component';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink, CommentThreadComponent],
   template: `
     <main class="page">
       <a class="back" routerLink="/projects">← Back to Projects</a>
@@ -27,33 +29,23 @@ import { ReviewComment, ReviewProject } from '../../core/models/review.models';
         </section>
       }
 
-      <section class="glass comments">
+      <section class="glass comments-section">
         <div class="comments-head">
           <h2>Comments</h2>
           <span class="muted">{{ comments().length }} total</span>
         </div>
-        <ul>
-          @for (comment of comments(); track comment.id) {
-            <li [class.resolved]="comment.status === 'resolved'">
-              <div class="meta">
-                <strong>{{ comment.createdBy }}</strong>
-                <small>{{ comment.createdAt | date: 'MMM d, y h:mm a' }}</small>
-              </div>
-              <p>{{ comment.message }}</p>
-              <div class="actions">
-                <span class="status">{{ comment.status }}</span>
-                <button type="button" (click)="toggleStatus(comment)">
-                  {{ comment.status === 'open' ? 'Resolve' : 'Reopen' }}
-                </button>
-              </div>
-            </li>
-          } @empty {
-            <li class="empty">No comments for this project yet.</li>
-          }
-        </ul>
         @if (error()) {
           <p class="error">{{ error() }}</p>
         }
+        <app-comment-thread
+          [comments]="comments()"
+          [currentUser]="currentUser()"
+          [showComposer]="false"
+          [allowDelete]="true"
+          (addReply)="createReply($event.parentId, $event.authorDisplayName, $event.body)"
+          (toggleStatus)="toggleStatus($event)"
+          (deleteComment)="removeComment($event)"
+        />
       </section>
     </main>
   `,
@@ -102,77 +94,34 @@ import { ReviewComment, ReviewProject } from '../../core/models/review.models';
       color: var(--paper) !important;
       font-weight: 600;
     }
-    .comments {
+    .comments-section {
       padding: 1rem;
+      overflow: hidden;
     }
     .comments-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.8rem;
+      margin-bottom: 1rem;
     }
     .muted {
       color: var(--mist);
       font-size: 0.9rem;
     }
-    ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: grid;
-      gap: 0.7rem;
-    }
-    li {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 0.75rem;
-      background: color-mix(in srgb, var(--paper) 88%, white 12%);
-    }
-    li.resolved {
-      opacity: 0.7;
-    }
-    .meta {
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
-    }
-    small {
-      color: var(--mist);
-    }
-    p {
-      line-height: 1.6;
-      color: var(--ink);
-    }
-    .actions {
-      margin-top: 0.55rem;
-      display: flex;
-      justify-content: space-between;
-      gap: 0.7rem;
-      align-items: center;
-    }
-    .status {
-      color: var(--mist);
-      text-transform: capitalize;
-      font-size: 0.85rem;
-    }
-    button {
-      border: 1px solid var(--ember);
-      border-radius: var(--radius-md);
-      background: transparent;
-      color: var(--ember);
-      padding: 0.4rem 0.7rem;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .empty {
-      color: var(--mist);
-      text-align: center;
-    }
     .error {
       color: #ff6a4f;
-      margin: 0.75rem 0 0;
+      margin: 0 0 0.75rem;
+    }
+    /* Override CommentThreadComponent sidebar styles for page context */
+    app-comment-thread {
+      display: block;
+    }
+    :host ::ng-deep app-comment-thread .thread {
+      width: 100%;
+      max-height: none;
+      border-left: none;
+      padding: 0;
+      background: transparent;
     }
   `,
 })
@@ -184,9 +133,19 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
   readonly project = signal<ReviewProject | null>(null);
   readonly comments = signal<ReviewComment[]>([]);
+  readonly currentUser = signal<string | null>(null);
   readonly error = signal<string | null>(null);
 
   async ngOnInit(): Promise<void> {
+    const uid = auth.currentUser?.uid;
+    if (uid) {
+      const userSnap = await getDoc(doc(db, 'users', uid));
+      const displayName = userSnap.exists()
+        ? String(userSnap.data()['displayName'] ?? '')
+        : null;
+      this.currentUser.set(displayName || auth.currentUser?.email || null);
+    }
+
     const projectId = this.route.snapshot.paramMap.get('projectId');
     if (!projectId) {
       this.error.set('Missing project id.');
@@ -219,6 +178,60 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  async createComment(authorDisplayName: string, body: string): Promise<void> {
+    const project = this.project();
+    if (!project) return;
+
+    try {
+      await this.commentRepository.addProjectComment({
+        projectId: project.id,
+        createdBy: authorDisplayName,
+        message: body,
+      });
+      this.error.set(null);
+    } catch (error: unknown) {
+      const code =
+        typeof error === 'object' && error !== null && 'code' in error
+          ? String((error as { code?: string }).code)
+          : 'unknown';
+      this.error.set(`Unable to post comment (${code}).`);
+    }
+  }
+
+  async createReply(parentId: string, authorDisplayName: string, body: string): Promise<void> {
+    const project = this.project();
+    if (!project) return;
+
+    try {
+      await this.commentRepository.addProjectComment({
+        projectId: project.id,
+        createdBy: authorDisplayName,
+        message: body,
+        parentId,
+      });
+      this.error.set(null);
+    } catch (error: unknown) {
+      const code =
+        typeof error === 'object' && error !== null && 'code' in error
+          ? String((error as { code?: string }).code)
+          : 'unknown';
+      this.error.set(`Unable to post reply (${code}).`);
+    }
+  }
+
+  async removeComment(comment: ReviewComment): Promise<void> {
+    try {
+      await this.commentRepository.deleteComment(comment.id);
+      this.error.set(null);
+    } catch (error: unknown) {
+      const code =
+        typeof error === 'object' && error !== null && 'code' in error
+          ? String((error as { code?: string }).code)
+          : 'unknown';
+      this.error.set(`Unable to delete comment (${code}).`);
+    }
   }
 
   async toggleStatus(comment: ReviewComment): Promise<void> {
