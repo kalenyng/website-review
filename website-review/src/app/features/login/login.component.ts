@@ -176,7 +176,7 @@ export class LoginComponent {
       filter((user) => user !== undefined),
       take(1),
     ).subscribe((user) => {
-      if (user) this.router.navigate(['/workspace']);
+      if (user) this.router.navigate(['/']);
     });
   }
 
@@ -210,7 +210,7 @@ export class LoginComponent {
         this.form.controls.email.value,
         this.form.controls.password.value,
       );
-      await this.router.navigate(['/workspace']);
+      await this.router.navigate(['/']);
     } catch (err: unknown) {
       this.error.set(this.parseFirebaseError(err));
     } finally {

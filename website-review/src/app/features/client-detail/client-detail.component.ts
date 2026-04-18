@@ -492,7 +492,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
   readonly backLink = computed(() => {
     const from = this.route.snapshot.queryParamMap.get('from');
     if (from === 'billing') return { path: '/billing', label: 'Billing' };
-    return { path: '/workspace', label: 'Workspace' };
+    return { path: '/', label: 'Workspace' };
   });
 
   readonly invoiceRows = computed<InvoiceRow[]>(() =>

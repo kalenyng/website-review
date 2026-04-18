@@ -7,7 +7,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   imports: [RouterLink, RouterLinkActive],
   template: `
     <nav class="admin-nav">
-      <a routerLink="/workspace" routerLinkActive="active" class="nav-link">Workspace</a>
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link">Workspace</a>
       <a routerLink="/projects" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link">Projects</a>
       <a routerLink="/billing" routerLinkActive="active" class="nav-link">Billing</a>
       <a routerLink="/care-plans" routerLinkActive="active" class="nav-link">Care Plans</a>

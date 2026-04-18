@@ -3,6 +3,7 @@
     "rules": "firestore.rules"
   },
   "hosting": {
+    "site": "websitereview-817d4",
     "public": "dist/website-review/browser",
     "ignore": [
       "firebase.json",

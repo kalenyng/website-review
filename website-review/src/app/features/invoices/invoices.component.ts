@@ -44,7 +44,7 @@ function toDateInput(d: Date): string {
               <div class="inv-left">
                 <span class="inv-num">{{ inv.invoiceNumber }}</span>
                 <div class="inv-body">
-                  <a [routerLink]="['/workspace', inv.clientId]" [queryParams]="{from: 'billing'}" class="clickable inv-client">{{ inv.clientName }}</a>
+                  <a [routerLink]="['/client', inv.clientId]" [queryParams]="{from: 'billing'}" class="clickable inv-client">{{ inv.clientName }}</a>
                   <span class="inv-desc">{{ inv.description }}</span>
                 </div>
               </div>

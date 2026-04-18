@@ -64,7 +64,7 @@ import { Client } from '../../core/models/review.models';
                 </div>
                 <div class="alert-list">
                   @for (inv of overdueInvoiceList(); track inv.id) {
-                    <a class="glass alert-row" [routerLink]="['/workspace', inv.clientId]">
+                    <a class="glass alert-row" [routerLink]="['/client', inv.clientId]">
                       <div class="alert-info">
                         <span class="alert-name">{{ inv.clientName }}</span>
                         <span class="alert-sub">{{ inv.invoiceNumber }} · {{ inv.description }}</span>
@@ -114,7 +114,7 @@ import { Client } from '../../core/models/review.models';
             @for (client of clients(); track client.id) {
               <article class="glass client-row">
                 <div class="client-info">
-                  <a class="clickable client-name" [routerLink]="['/workspace', client.id]">{{ client.name }}</a>
+                  <a class="clickable client-name" [routerLink]="['/client', client.id]">{{ client.name }}</a>
                   <span class="client-email">{{ client.email }}</span>
                   @if (client.notes) {
                     <span class="client-notes">{{ client.notes }}</span>

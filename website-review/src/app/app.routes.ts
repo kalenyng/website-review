@@ -48,8 +48,8 @@ export const routes: Routes = [
       },
       {
         path: 'workspace',
-        loadComponent: () =>
-          import('./features/clients/clients.component').then((m) => m.ClientsComponent),
+        pathMatch: 'full',
+        redirectTo: '',
       },
       {
         path: 'projects',
@@ -65,6 +65,11 @@ export const routes: Routes = [
       },
       {
         path: 'workspace/:clientId',
+        redirectTo: 'client/:clientId',
+        pathMatch: 'full',
+      },
+      {
+        path: 'client/:clientId',
         loadComponent: () =>
           import('./features/client-detail/client-detail.component').then(
             (m) => m.ClientDetailComponent,
