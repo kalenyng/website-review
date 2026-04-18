@@ -9,6 +9,18 @@ export const routes: Routes = [
       import('./features/login/login.component').then((m) => m.LoginComponent),
   },
   {
+    path: 'auth',
+    children: [
+      {
+        path: 'action',
+        loadComponent: () =>
+          import('./features/auth-action/auth-action.component').then(
+            (m) => m.AuthActionComponent,
+          ),
+      },
+    ],
+  },
+  {
     path: 'review-workspace/:sessionId',
     loadComponent: () =>
       import('./features/review-workspace/review-workspace.component').then(
@@ -31,7 +43,8 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'workspace',
+        loadComponent: () =>
+          import('./features/clients/clients.component').then((m) => m.ClientsComponent),
       },
       {
         path: 'workspace',

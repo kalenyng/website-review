@@ -10,6 +10,7 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { auth, db } from '../data/firebase-db';
 
 /**
@@ -40,7 +41,10 @@ export class AuthService implements OnDestroy {
   }
 
   async sendPasswordReset(email: string): Promise<void> {
-    await sendPasswordResetEmail(auth, email);
+    await sendPasswordResetEmail(auth, email, {
+      url: `${environment.appUrl}/auth/action`,
+      handleCodeInApp: true,
+    });
   }
 
   async updateDisplayName(displayName: string): Promise<void> {

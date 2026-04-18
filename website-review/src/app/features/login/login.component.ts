@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { filter, take } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
@@ -169,6 +170,15 @@ import { AuthService } from '../../core/auth/auth.service';
 export class LoginComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+
+  constructor() {
+    this.authService.user$.pipe(
+      filter((user) => user !== undefined),
+      take(1),
+    ).subscribe((user) => {
+      if (user) this.router.navigate(['/workspace']);
+    });
+  }
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
