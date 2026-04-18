@@ -78,11 +78,11 @@ import { AuthService } from '../../core/auth/auth.service';
   `,
   styles: `
     .settings-page {
-      max-width: 60rem;
+      max-width: 72rem;
       margin: 0 auto;
       padding: 3rem 1.5rem 5rem;
       display: grid;
-      gap: 1.2rem;
+      gap: 2rem;
       align-content: start;
     }
     .page-header h1 {
