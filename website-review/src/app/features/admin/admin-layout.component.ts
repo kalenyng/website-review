@@ -38,6 +38,8 @@ import { AdminNavComponent } from './admin-nav.component';
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.6rem 1rem;
       padding: 0.6rem 1.5rem;
       background: color-mix(in srgb, var(--paper) 92%, transparent 8%);
       border-bottom: 1px solid var(--border);
@@ -48,6 +50,9 @@ import { AdminNavComponent } from './admin-nav.component';
       display: flex;
       align-items: center;
       gap: 1rem;
+      min-width: 0;
+      flex-wrap: wrap;
+      flex: 1 1 auto;
     }
     .brand-logo {
       height: 2rem;
@@ -58,6 +63,8 @@ import { AdminNavComponent } from './admin-nav.component';
       display: flex;
       align-items: center;
       gap: 0.75rem;
+      margin-left: auto;
+      flex-shrink: 0;
     }
     .user-email {
       font-size: 0.82rem;
@@ -82,6 +89,15 @@ import { AdminNavComponent } from './admin-nav.component';
       flex: 1;
       display: flex;
       flex-direction: column;
+    }
+    @media (max-width: 54rem) {
+      .admin-header {
+        padding: 0.75rem 1rem;
+      }
+      .header-right {
+        width: 100%;
+        justify-content: flex-end;
+      }
     }
   `,
 })

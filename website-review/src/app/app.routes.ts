@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
+import { SettingsComponent } from './features/settings/settings.component';
 
 export const routes: Routes = [
   {
@@ -65,6 +66,10 @@ export const routes: Routes = [
         path: 'care-plans',
         loadComponent: () =>
           import('./features/care-plans/care-plans.component').then((m) => m.CarePlansComponent),
+      },
+      {
+        path: 'settings',
+        component: SettingsComponent,
       },
     ],
   },

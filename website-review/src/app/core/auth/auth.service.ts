@@ -1,8 +1,16 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { User, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import {
+  User,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
+  updateProfile,
+} from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 import { BehaviorSubject } from 'rxjs';
-import { auth } from '../data/firebase-db';
+import { auth, db } from '../data/firebase-db';
 
 /**
  * undefined = Firebase has not yet resolved the auth state (initial page load)
@@ -29,6 +37,30 @@ export class AuthService implements OnDestroy {
   async logout(): Promise<void> {
     await signOut(auth);
     await this.router.navigate(['/login']);
+  }
+
+  async sendPasswordReset(email: string): Promise<void> {
+    await sendPasswordResetEmail(auth, email);
+  }
+
+  async updateDisplayName(displayName: string): Promise<void> {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('No authenticated user.');
+    }
+
+    const trimmedName = displayName.trim();
+    await updateProfile(user, { displayName: trimmedName });
+    await setDoc(
+      doc(db, 'users', user.uid),
+      {
+        displayName: trimmedName,
+        email: user.email ?? null,
+        updatedAt: new Date().toISOString(),
+      },
+      { merge: true },
+    );
+    this.userSubject.next(auth.currentUser);
   }
 
   getCurrentUser(): User | null | undefined {

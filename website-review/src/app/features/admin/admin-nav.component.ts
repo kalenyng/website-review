@@ -11,6 +11,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       <a routerLink="/projects" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link">Projects</a>
       <a routerLink="/billing" routerLinkActive="active" class="nav-link">Billing</a>
       <a routerLink="/care-plans" routerLinkActive="active" class="nav-link">Care Plans</a>
+      <a routerLink="/settings" routerLinkActive="active" class="nav-link">Settings</a>
     </nav>
   `,
   styles: `

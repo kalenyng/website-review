@@ -32,17 +32,29 @@ import { AuthService } from '../../core/auth/auth.service';
               id="password"
               type="password"
               formControlName="password"
-              placeholder="••••••••"
+              placeholder="********"
               autocomplete="current-password"
             />
           </div>
+
+          <button class="forgot-link" type="button" (click)="onForgotPassword()" [disabled]="resetLoading()">
+            {{ resetLoading() ? 'Sending reset link...' : 'Forgot password?' }}
+          </button>
+
+          @if (resetError()) {
+            <p class="error">{{ resetError() }}</p>
+          }
+
+          @if (resetSuccess()) {
+            <p class="success">{{ resetSuccess() }}</p>
+          }
 
           @if (error()) {
             <p class="error">{{ error() }}</p>
           }
 
           <button class="btn-primary" type="submit" [disabled]="loading()">
-            {{ loading() ? 'Signing in…' : 'Sign in' }}
+            {{ loading() ? 'Signing in...' : 'Sign in' }}
           </button>
         </form>
       </div>
@@ -117,6 +129,26 @@ import { AuthService } from '../../core/auth/auth.service';
       color: #ff6a4f;
       font-size: 0.875rem;
     }
+    .success {
+      margin: 0;
+      color: #3aa06b;
+      font-size: 0.875rem;
+    }
+    .forgot-link {
+      justify-self: start;
+      border: 0;
+      background: transparent;
+      color: var(--alpine);
+      font-size: 0.85rem;
+      padding: 0;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .forgot-link:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
     .btn-primary {
       border: 0;
       border-radius: var(--radius-md);
@@ -140,6 +172,9 @@ export class LoginComponent {
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly resetLoading = signal(false);
+  readonly resetError = signal<string | null>(null);
+  readonly resetSuccess = signal<string | null>(null);
 
   readonly form = new FormGroup({
     email: new FormControl('', {
@@ -157,6 +192,8 @@ export class LoginComponent {
 
     this.loading.set(true);
     this.error.set(null);
+    this.resetError.set(null);
+    this.resetSuccess.set(null);
 
     try {
       await this.authService.login(
@@ -168,6 +205,29 @@ export class LoginComponent {
       this.error.set(this.parseFirebaseError(err));
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  async onForgotPassword(): Promise<void> {
+    const emailControl = this.form.controls.email;
+    this.resetError.set(null);
+    this.resetSuccess.set(null);
+
+    if (emailControl.invalid) {
+      emailControl.markAsTouched();
+      this.resetError.set('Enter a valid email first, then request a reset link.');
+      return;
+    }
+
+    this.resetLoading.set(true);
+    try {
+      const email = emailControl.value.trim();
+      await this.authService.sendPasswordReset(email);
+      this.resetSuccess.set(`Email sent! Remember to check your spam.`);
+    } catch (err: unknown) {
+      this.resetError.set(this.parseResetError(err));
+    } finally {
+      this.resetLoading.set(false);
     }
   }
 
@@ -189,5 +249,24 @@ export class LoginComponent {
       }
     }
     return 'Sign in failed. Please try again.';
+  }
+
+  private parseResetError(err: unknown): string {
+    if (typeof err === 'object' && err !== null && 'code' in err) {
+      const code = String((err as { code?: string }).code);
+      if (code === 'auth/invalid-email') {
+        return 'Please enter a valid email address.';
+      }
+      if (code === 'auth/user-not-found') {
+        return 'If that account exists, a reset email will arrive shortly.';
+      }
+      if (code === 'auth/too-many-requests') {
+        return 'Too many requests. Please try again later.';
+      }
+      if (code === 'auth/network-request-failed') {
+        return 'Network error. Check your connection and try again.';
+      }
+    }
+    return 'Could not send reset email. Please try again.';
   }
 }
