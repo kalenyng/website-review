@@ -21,6 +21,7 @@ if (fs.existsSync(envLocalPath)) {
 const targetPath = path.resolve(__dirname, '../src/environments/environment.ts');
 
 const content = `export const environment = {
+  appUrl: '${process.env.APP_URL || 'https://review.kalenyoung.co.uk'}',
   firebase: {
     apiKey: '${process.env.FIREBASE_API_KEY}',
     authDomain: '${process.env.FIREBASE_AUTH_DOMAIN}',
