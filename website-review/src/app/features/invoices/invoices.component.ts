@@ -146,10 +146,13 @@ function toDateInput(d: Date): string {
     .dashboard {
       max-width: 72rem;
       margin: 0 auto;
-      padding: 3rem 1.5rem 5rem;
+      padding: var(--page-pad-y-start) var(--page-pad-inline) var(--page-pad-y-end);
       display: grid;
       gap: 1.5rem;
       align-content: start;
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
     }
     .page-header {
       display: flex;
@@ -178,7 +181,15 @@ function toDateInput(d: Date): string {
       box-shadow: var(--shadow);
       backdrop-filter: blur(8px);
     }
-    .filter-tabs { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+    .filter-tabs {
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding-bottom: 0.2rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
     .tab {
       padding: 0.35rem 0.75rem;
       border-radius: var(--radius-md);
@@ -221,6 +232,7 @@ function toDateInput(d: Date): string {
       align-items: center;
       gap: 1rem;
       flex-wrap: wrap;
+      min-width: 0;
       transition: opacity 0.15s;
     }
     .invoice-row.is-paid { opacity: 0.55; }
@@ -240,11 +252,19 @@ function toDateInput(d: Date): string {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      flex-shrink: 0;
+      flex-shrink: 1;
+      min-width: 0;
       flex-wrap: wrap;
     }
     .inv-amount { font-weight: 700; font-size: 1rem; }
-    .inv-dates { display: flex; flex-direction: column; gap: 0.1rem; font-size: 0.8rem; color: var(--mist); text-align: right; }
+    .inv-dates {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+      font-size: 0.8rem;
+      color: var(--mist);
+      text-align: right;
+    }
     .inv-actions { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
     .badge {
       padding: 0.2rem 0.55rem;
@@ -393,6 +413,28 @@ function toDateInput(d: Date): string {
       cursor: pointer;
     }
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    @media (max-width: 36rem) {
+      .invoice-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .inv-right {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .inv-dates {
+        text-align: left;
+      }
+      /* Shorter copy on very narrow screens — counts stay in tabs */
+      .tab .count {
+        display: none;
+      }
+    }
+    @media (max-width: 22rem) {
+      .inv-dates {
+        display: none;
+      }
+    }
   `,
 })
 export class InvoicesComponent implements OnInit, OnDestroy {

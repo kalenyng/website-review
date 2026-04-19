@@ -205,10 +205,13 @@ type CarePlanRow = CarePlan & { status: CarePlanStatus };
     .dashboard {
       max-width: 72rem;
       margin: 0 auto;
-      padding: 3rem 1rem 5rem;
+      padding: var(--page-pad-y-start) var(--page-pad-inline) var(--page-pad-y-end);
       display: grid;
       gap: 2rem;
       align-content: start;
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
     }
     .glass {
       background: var(--glass);
@@ -228,7 +231,13 @@ type CarePlanRow = CarePlan & { status: CarePlanStatus };
       font-size: 0.72rem;
     }
     .client-info h1 { margin: 0.2rem 0 0.3rem; font-size: 1.6rem; }
-    .client-email { color: var(--alpine); font-size: 0.9rem; text-decoration: none; }
+    .client-email {
+      color: var(--alpine);
+      font-size: 0.9rem;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
     .client-email:hover { text-decoration: underline; }
     .client-notes { margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--mist); }
     .back-link { color: var(--mist); text-decoration: none; font-size: 0.875rem; white-space: nowrap; }
@@ -240,15 +249,21 @@ type CarePlanRow = CarePlan & { status: CarePlanStatus };
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       overflow: hidden;
+      min-width: 0;
     }
     .fin-stat {
-      flex: 1;
+      flex: 1 1 0;
+      min-width: 0;
       padding: 0.9rem 1.2rem;
       display: flex;
       flex-direction: column;
       gap: 0.2rem;
     }
-    .fin-divider { width: 1px; background: var(--border); }
+    .fin-divider {
+      width: 1px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
     .fin-label { font-size: 0.75rem; color: var(--mist); text-transform: uppercase; letter-spacing: 0.05em; }
     .fin-value { font-size: 1.3rem; font-weight: 700; }
     .fin-value.paid { color: var(--ink); }
@@ -267,13 +282,21 @@ type CarePlanRow = CarePlan & { status: CarePlanStatus };
       align-items: center;
       gap: 1rem;
       flex-wrap: wrap;
+      min-width: 0;
       transition: opacity 0.15s;
     }
     .plan-row.is-inactive { opacity: 0.5; }
     .plan-body { display: flex; flex-direction: column; gap: 0.1rem; }
     .plan-name { font-weight: 600; font-size: 0.95rem; }
     .plan-cycle { font-size: 0.8rem; color: var(--mist); }
-    .plan-right { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; flex-shrink: 0; }
+    .plan-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      flex-shrink: 1;
+      min-width: 0;
+    }
     .plan-amount { font-weight: 700; }
     .plan-due { font-size: 0.82rem; color: var(--mist); }
     /* Timeline */
@@ -285,6 +308,7 @@ type CarePlanRow = CarePlan & { status: CarePlanStatus };
       align-items: center;
       gap: 1rem;
       flex-wrap: wrap;
+      min-width: 0;
       transition: opacity 0.15s;
     }
     .timeline-row.is-paid { opacity: 0.5; }
@@ -301,7 +325,14 @@ type CarePlanRow = CarePlan & { status: CarePlanStatus };
     .tl-desc { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .tl-dates { font-size: 0.8rem; color: var(--mist); display: flex; gap: 0.25rem; flex-wrap: wrap; }
     .paid-on { color: #4caf50; }
-    .tl-right { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; flex-wrap: wrap; }
+    .tl-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 1;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
     .tl-amount { font-weight: 700; font-size: 0.95rem; }
     /* Badges */
     .badge {
@@ -467,6 +498,44 @@ type CarePlanRow = CarePlan & { status: CarePlanStatus };
       text-underline-offset: 2px;
     }
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    @media (max-width: 40rem) {
+      .fin-summary {
+        flex-direction: column;
+      }
+      .fin-divider {
+        display: none;
+      }
+      .fin-stat {
+        border-bottom: 1px solid var(--border);
+        padding: 0.75rem 1rem;
+      }
+      .fin-stat:last-child {
+        border-bottom: none;
+      }
+      .fin-value {
+        font-size: 1.15rem;
+      }
+      .client-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+      .plan-row,
+      .timeline-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+      }
+      .plan-right,
+      .tl-right {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+      .tl-desc {
+        white-space: normal;
+      }
+    }
   `,
 })
 export class ClientDetailComponent implements OnInit, OnDestroy {

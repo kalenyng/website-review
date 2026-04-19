@@ -101,10 +101,13 @@ interface CommentThread {
   `,
   styles: `
     .thread {
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 320px;
+      min-height: 0;
       border-left: 1px solid var(--border);
       padding: 1rem;
-      width: 320px;
-      max-height: 100vh;
+      max-height: 100dvh;
       overflow: auto;
       background: transparent;
       color: var(--ink);
@@ -287,6 +290,14 @@ interface CommentThread {
       color: var(--mist);
       font-size: 0.875rem;
       padding: 1rem 0;
+    }
+    @media (max-width: 56rem) {
+      .thread {
+        max-width: none;
+        border-left: none;
+        border-top: 1px solid var(--border);
+        max-height: min(70dvh, 32rem);
+      }
     }
   `,
 })

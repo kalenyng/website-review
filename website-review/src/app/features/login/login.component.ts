@@ -67,7 +67,10 @@ import { AuthService } from '../../core/auth/auth.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
+      padding: max(var(--page-pad-inline), env(safe-area-inset-top))
+        max(var(--page-pad-inline), env(safe-area-inset-right))
+        max(var(--page-pad-inline), env(safe-area-inset-bottom))
+        max(var(--page-pad-inline), env(safe-area-inset-left));
     }
     .glass {
       background: var(--glass);
@@ -79,7 +82,7 @@ import { AuthService } from '../../core/auth/auth.service';
     .login-card {
       width: 100%;
       max-width: 24rem;
-      padding: 2rem;
+      padding: clamp(1.35rem, 4vw, 2rem) var(--page-pad-inline);
       display: grid;
       gap: 1.5rem;
     }
@@ -153,7 +156,8 @@ import { AuthService } from '../../core/auth/auth.service';
     .btn-primary {
       border: 0;
       border-radius: var(--radius-md);
-      padding: 0.7rem 1rem;
+      min-height: 44px;
+      padding: 0.75rem 1rem;
       background: var(--ember);
       color: var(--paper);
       font-weight: 600;

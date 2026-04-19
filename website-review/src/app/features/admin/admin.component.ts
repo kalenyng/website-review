@@ -109,9 +109,12 @@ import { normalizeHttpUrl } from '../../core/utils/url.util';
     .dashboard {
       max-width: 72rem;
       margin: 0 auto;
-      padding: 3rem 1.5rem 5rem;
+      padding: var(--page-pad-y-start) var(--page-pad-inline) var(--page-pad-y-end);
       display: grid;
       gap: 1.5rem;
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
     }
     .page-header {
       display: flex;
@@ -236,7 +239,9 @@ import { normalizeHttpUrl } from '../../core/utils/url.util';
       display: flex;
       align-items: center;
       gap: 0.3rem;
-      flex-shrink: 0;
+      flex-shrink: 1;
+      min-width: 0;
+      flex-wrap: wrap;
     }
     .icon-btn {
       border: 1px solid var(--border);

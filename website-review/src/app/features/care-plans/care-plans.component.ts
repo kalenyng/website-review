@@ -111,10 +111,13 @@ type CarePlanCard = CarePlan & { status: CarePlanStatus; clientName: string };
     .dashboard {
       max-width: 72rem;
       margin: 0 auto;
-      padding: 3rem 1.5rem 5rem;
+      padding: var(--page-pad-y-start) var(--page-pad-inline) var(--page-pad-y-end);
       display: grid;
       gap: 1.5rem;
       align-content: start;
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
     }
     .page-header {
       display: flex;
@@ -170,6 +173,7 @@ type CarePlanCard = CarePlan & { status: CarePlanStatus; clientName: string };
       align-items: center;
       gap: 1rem;
       flex-wrap: wrap;
+      min-width: 0;
       transition: opacity 0.15s;
     }
     .plan-row.is-inactive { opacity: 0.5; }
@@ -177,7 +181,14 @@ type CarePlanCard = CarePlan & { status: CarePlanStatus; clientName: string };
     .plan-body { display: flex; flex-direction: column; gap: 0.15rem; }
     .plan-name { font-weight: 600; font-size: 0.95rem; }
     .plan-sub { font-size: 0.82rem; color: var(--mist); }
-    .plan-right { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; flex-wrap: wrap; }
+    .plan-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-shrink: 1;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
     .plan-amount { font-weight: 700; font-size: 1rem; }
     .plan-dates { font-size: 0.8rem; color: var(--mist); }
     .plan-actions { display: flex; align-items: center; gap: 0.4rem; }
@@ -261,6 +272,17 @@ type CarePlanCard = CarePlan & { status: CarePlanStatus; clientName: string };
       font-size: 0.9rem;
     }
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    @media (max-width: 40rem) {
+      .plan-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+      }
+      .plan-right {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
   `,
 })
 export class CarePlansComponent implements OnInit, OnDestroy {

@@ -80,10 +80,13 @@ import { AuthService } from '../../core/auth/auth.service';
     .settings-page {
       max-width: 72rem;
       margin: 0 auto;
-      padding: 3rem 1.5rem 5rem;
+      padding: var(--page-pad-y-start) var(--page-pad-inline) var(--page-pad-y-end);
       display: grid;
       gap: 2rem;
       align-content: start;
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
     }
     .page-header h1 {
       margin: 0.2rem 0 0.3rem;
@@ -123,7 +126,7 @@ import { AuthService } from '../../core/auth/auth.service';
       margin: 0;
       display: grid;
       gap: 0.75rem;
-      grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
     }
     dt {
       font-size: 0.78rem;

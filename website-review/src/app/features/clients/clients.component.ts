@@ -178,10 +178,13 @@ import { Client } from '../../core/models/review.models';
     .page {
       max-width: 72rem;
       margin: 0 auto;
-      padding: 3rem 1.5rem 5rem;
+      padding: var(--page-pad-y-start) var(--page-pad-inline) var(--page-pad-y-end);
       display: grid;
       gap: 2rem;
       align-content: start;
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
     }
     .page-header {
       display: flex;
@@ -215,7 +218,7 @@ import { Client } from '../../core/models/review.models';
     .stat-grid {
       display: grid;
       gap: 1rem;
-      grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(min(11rem, 100%), 1fr));
     }
     .stat-card { padding: 1.1rem 1.25rem; display: grid; gap: 0.25rem; }
     .stat-label { margin: 0; font-size: 0.75rem; color: var(--mist); text-transform: uppercase; letter-spacing: 0.06em; }
@@ -229,7 +232,7 @@ import { Client } from '../../core/models/review.models';
     .alerts-grid {
       display: grid;
       gap: 1.5rem;
-      grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr));
     }
     .alert-list { display: grid; gap: 0.4rem; }
     .alert-row {
@@ -247,7 +250,14 @@ import { Client } from '../../core/models/review.models';
     .alert-info { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
     .alert-name { font-weight: 600; font-size: 0.9rem; color: var(--ink); }
     .alert-sub { font-size: 0.78rem; color: var(--mist); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .alert-right { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
+    .alert-right {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-shrink: 1;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
     .alert-amount { font-weight: 700; font-size: 0.9rem; }
     /* Badges */
     .badge {
@@ -281,6 +291,8 @@ import { Client } from '../../core/models/review.models';
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
+      flex-wrap: wrap;
+      min-width: 0;
     }
     .client-info {
       flex: 1;
@@ -290,13 +302,20 @@ import { Client } from '../../core/models/review.models';
       min-width: 0;
     }
     .client-name { font-weight: 600; font-size: 0.95rem; width: fit-content; }
-    .client-email { color: var(--alpine); font-size: 0.83rem; }
+    .client-email {
+      color: var(--alpine);
+      font-size: 0.83rem;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
     .client-notes { color: var(--mist); font-size: 0.8rem; overflow-wrap: anywhere; }
     .row-right {
       display: flex;
       align-items: center;
       gap: 1rem;
-      flex-shrink: 0;
+      flex-shrink: 1;
+      min-width: 0;
+      flex-wrap: wrap;
     }
     .client-fin {
       display: flex;
@@ -400,6 +419,29 @@ import { Client } from '../../core/models/review.models';
     }
     input::placeholder, textarea::placeholder { color: var(--mist); }
     .modal-actions { display: flex; gap: 0.6rem; margin-top: 0.25rem; }
+    @media (max-width: 40rem) {
+      .client-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .row-right {
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .client-fin {
+        align-items: flex-start;
+      }
+      .alert-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.65rem;
+      }
+      .alert-right {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
   `,
 })
 export class ClientsComponent implements OnInit, OnDestroy {

@@ -103,10 +103,13 @@ import { CarePlan, Invoice, carePlanStatus, invoiceStatus } from '../../core/mod
     .dashboard {
       max-width: 72rem;
       margin: 0 auto;
-      padding: 3rem 1.5rem 5rem;
+      padding: var(--page-pad-y-start) var(--page-pad-inline) var(--page-pad-y-end);
       display: grid;
       gap: 2rem;
       align-content: start;
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
     }
     .page-header {
       display: flex;
@@ -151,7 +154,7 @@ import { CarePlan, Invoice, carePlanStatus, invoiceStatus } from '../../core/mod
     .stat-grid {
       display: grid;
       gap: 1rem;
-      grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(min(14rem, 100%), 1fr));
     }
     .stat-card { padding: 1.2rem 1.4rem; display: grid; gap: 0.2rem; }
     .stat-label { margin: 0; font-size: 0.8rem; color: var(--mist); text-transform: uppercase; letter-spacing: 0.06em; }
@@ -173,11 +176,19 @@ import { CarePlan, Invoice, carePlanStatus, invoiceStatus } from '../../core/mod
       align-items: center;
       gap: 1rem;
       flex-wrap: wrap;
+      min-width: 0;
     }
     .row-main { display: flex; gap: 0.75rem; align-items: center; min-width: 0; }
     .inv-num { font-size: 0.8rem; color: var(--mist); white-space: nowrap; }
     .inv-desc { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .row-meta { display: flex; gap: 0.75rem; align-items: center; flex-shrink: 0; flex-wrap: wrap; }
+    .row-meta {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-shrink: 1;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
     .amount { font-weight: 600; }
     .due-date { font-size: 0.85rem; color: var(--mist); }
     .badge {
@@ -192,6 +203,17 @@ import { CarePlan, Invoice, carePlanStatus, invoiceStatus } from '../../core/mod
     .badge-due-soon { background: #f5a62322; color: #f5a623; }
     .muted { color: var(--mist); }
     .empty-msg { font-size: 0.9rem; }
+    @media (max-width: 40rem) {
+      .list-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.65rem;
+      }
+      .row-meta {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
   `,
 })
 export class DashboardComponent implements OnInit, OnDestroy {

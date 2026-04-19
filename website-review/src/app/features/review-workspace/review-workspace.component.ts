@@ -70,30 +70,43 @@ import { CommentThreadComponent } from './components/comment-thread/comment-thre
   styles: `
     .workspace {
       display: grid;
-      grid-template-columns: 1fr 320px;
-      min-height: 100vh;
+      grid-template-columns: 1fr minmax(0, 320px);
+      grid-template-rows: minmax(0, 1fr);
+      min-height: 100dvh;
+      height: 100dvh;
     }
     .toolbar {
       display: flex;
-      gap: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.5rem 0.75rem;
       padding: 0.5rem 1rem;
       border-bottom: 1px solid #ececec;
       align-items: center;
       font-size: 0.9rem;
+      row-gap: 0.35rem;
+    }
+    .toolbar code {
+      max-width: 100%;
+      overflow: auto;
+      font-size: 0.78rem;
     }
     .viewer {
       display: grid;
-      grid-template-rows: auto auto 1fr;
+      grid-template-rows: auto auto minmax(0, 1fr);
       min-width: 0;
+      min-height: 0;
     }
     .frame-wrap {
       position: relative;
       background: #eef2f6;
       overflow: hidden;
+      min-height: 0;
     }
     iframe {
+      position: absolute;
+      inset: 0;
       width: 100%;
-      height: calc(100vh - 50px);
+      height: 100%;
       border: none;
       background: white;
     }
@@ -126,6 +139,34 @@ import { CommentThreadComponent } from './components/comment-thread/comment-thre
       color: #b42318;
       background: #fef3f2;
       border-top: 1px solid #fcd8d4;
+    }
+    @media (max-width: 56rem) {
+      .workspace {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        height: auto;
+        min-height: 100dvh;
+      }
+      .toolbar {
+        padding: 0.45rem 0.75rem;
+        font-size: 0.85rem;
+        gap: 0.4rem 0.55rem;
+      }
+      .viewer {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      .frame-wrap {
+        position: relative;
+        flex: 0 0 auto;
+        height: min(58dvh, 30rem);
+        min-height: min(50dvh, 22rem);
+      }
+      iframe {
+        position: absolute;
+        inset: 0;
+      }
     }
   `,
 })

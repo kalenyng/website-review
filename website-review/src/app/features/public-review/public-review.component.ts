@@ -17,9 +17,11 @@ import { CommentThreadComponent } from '../review-workspace/components/comment-t
         @if (session()) {
           <header class="toolbar">
             <strong>Public review</strong>
-            <span>{{ session()?.targetUrl }}</span>
+            <span class="toolbar-url">{{ session()?.targetUrl }}</span>
           </header>
-          <iframe [src]="safeTargetUrl()" title="Public review target"></iframe>
+          <div class="frame-wrap">
+            <iframe [src]="safeTargetUrl()" title="Public review target"></iframe>
+          </div>
         } @else {
           <p class="loading">Loading shared session...</p>
         }
@@ -39,20 +41,45 @@ import { CommentThreadComponent } from '../review-workspace/components/comment-t
   styles: `
     .workspace {
       display: grid;
-      grid-template-columns: 1fr 320px;
-      min-height: 100vh;
+      grid-template-columns: 1fr minmax(0, 320px);
+      grid-template-rows: minmax(0, 1fr);
+      min-height: 100dvh;
+      height: 100dvh;
+    }
+    .viewer {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-width: 0;
+      min-height: 0;
     }
     .toolbar {
       padding: 0.5rem 1rem;
       border-bottom: 1px solid #ececec;
       display: flex;
-      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 0.75rem;
       font-size: 0.9rem;
     }
+    .toolbar-url {
+      min-width: 0;
+      flex: 1 1 12rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .frame-wrap {
+      position: relative;
+      min-height: 0;
+      background: #eef2f6;
+    }
     iframe {
+      position: absolute;
+      inset: 0;
       width: 100%;
-      height: calc(100vh - 40px);
+      height: 100%;
       border: none;
+      background: white;
     }
     .loading {
       padding: 1rem;
@@ -64,6 +91,28 @@ import { CommentThreadComponent } from '../review-workspace/components/comment-t
       background: #fef3f2;
       border-top: 1px solid #fcd8d4;
       grid-column: 1 / -1;
+    }
+    @media (max-width: 56rem) {
+      .workspace {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        height: auto;
+        min-height: 100dvh;
+      }
+      .toolbar {
+        padding: 0.45rem 0.75rem;
+        font-size: 0.85rem;
+      }
+      .viewer {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      .frame-wrap {
+        flex: 0 0 auto;
+        height: min(58dvh, 30rem);
+        min-height: min(50dvh, 22rem);
+      }
     }
   `,
 })
