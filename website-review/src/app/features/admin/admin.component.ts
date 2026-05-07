@@ -33,6 +33,18 @@ import { normalizeHttpUrl } from '../../core/utils/url.util';
         }
       </section>
 
+      <section class="glass embed-card">
+        <h2>Embed Script</h2>
+        <p class="muted">Add this to the client site HTML:</p>
+        <p class="embed-snippet">
+          <code>&lt;script src="https://review.kalenyoung.co.uk/review-widget.js"&gt;&lt;/script&gt;</code>
+          <button type="button" class="copy-btn" (click)="copyEmbedScript()">Copy</button>
+          @if (copiedEmbedScript()) {
+            <span class="copy-confirm">Copied!</span>
+          }
+        </p>
+      </section>
+
       <section class="projects">
         <div class="projects-head">
           <h2>Active Projects</h2>
@@ -151,8 +163,16 @@ import { normalizeHttpUrl } from '../../core/utils/url.util';
     .create-card {
       padding: 1.2rem;
     }
+    .embed-card {
+      padding: 1.2rem;
+      display: grid;
+      gap: 0.5rem;
+    }
     .create-card h2 {
       margin: 0 0 0.9rem;
+    }
+    .embed-card h2 {
+      margin: 0;
     }
     form {
       display: grid;
@@ -335,6 +355,23 @@ import { normalizeHttpUrl } from '../../core/utils/url.util';
       font-weight: 600;
       font-size: 0.78rem;
     }
+    .embed-snippet {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      color: var(--mist);
+      font-size: 0.82rem;
+    }
+    .embed-snippet code {
+      color: var(--ink);
+      background: color-mix(in srgb, var(--paper) 72%, white 28%);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.2rem 0.4rem;
+      overflow-wrap: anywhere;
+    }
     .review-link {
       margin: 0;
       display: flex;
@@ -394,6 +431,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   readonly comments = signal<ReviewComment[]>([]);
   readonly copiedProjectId = signal<string | null>(null);
   readonly copiedReviewLink = signal<string | null>(null);
+  readonly copiedEmbedScript = signal(false);
   readonly editingProjectId = signal<string | null>(null);
   readonly editSaving = signal(false);
   readonly editError = signal<string | null>(null);
@@ -502,6 +540,17 @@ export class AdminComponent implements OnInit, OnDestroy {
       }, 1600);
     } catch {
       this.error.set('Could not copy review link.');
+    }
+  }
+
+  async copyEmbedScript(): Promise<void> {
+    const snippet = '<script src="https://review.kalenyoung.co.uk/review-widget.js"></script>';
+    try {
+      await navigator.clipboard.writeText(snippet);
+      this.copiedEmbedScript.set(true);
+      window.setTimeout(() => this.copiedEmbedScript.set(false), 1600);
+    } catch {
+      this.error.set('Could not copy embed script.');
     }
   }
 
