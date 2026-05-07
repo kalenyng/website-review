@@ -15,6 +15,7 @@
   const STYLE_ID = 'wr-widget-style';
   const PINS_ID = 'wr-widget-pins';
   const SIDEBAR_ID = 'wr-widget-sidebar';
+  const LAUNCHER_ID = 'wr-widget-launcher';
   const NAME_MODAL_ID = 'wr-widget-name-modal';
   const COMMENT_MODAL_ID = 'wr-widget-comment-modal';
   const HOVER_ID = 'wr-widget-hover-outline';
@@ -41,6 +42,7 @@
   let hoverRoot = null;
   let hoveredElement = null;
   let hoverRafId = 0;
+  let launcherRoot = null;
 
   function loadScript(src) {
     return new Promise((resolve, reject) => {
@@ -549,6 +551,26 @@
         font-family: Inter, Arial, sans-serif;
         font-size: 12px;
         cursor: pointer;
+      }
+      #${LAUNCHER_ID} {
+        position: fixed;
+        left: 16px;
+        bottom: 16px;
+        z-index: 2147483598;
+        border: 1px solid #1d4ed8;
+        border-radius: 999px;
+        background: #1d4ed8;
+        color: #fff;
+        padding: 10px 16px;
+        box-shadow: 0 10px 24px rgba(16, 24, 40, 0.2);
+        font-family: Inter, Arial, sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      #${LAUNCHER_ID}:hover {
+        background: #1e40af;
+        border-color: #1e40af;
       }
     `;
     document.head.appendChild(style);
@@ -1226,6 +1248,19 @@
     document.body.appendChild(sidebarRoot);
   }
 
+  function createLauncherButton(onClick) {
+    const existing = document.getElementById(LAUNCHER_ID);
+    if (existing) {
+      existing.remove();
+    }
+    launcherRoot = document.createElement('button');
+    launcherRoot.id = LAUNCHER_ID;
+    launcherRoot.type = 'button';
+    launcherRoot.textContent = 'Review site';
+    launcherRoot.addEventListener('click', onClick);
+    document.body.appendChild(launcherRoot);
+  }
+
   async function initWidget(options) {
     const settings = options || {};
     const projectId = settings.projectId;
@@ -1244,6 +1279,10 @@
     }
 
     injectStyles();
+    if (launcherRoot) {
+      launcherRoot.remove();
+      launcherRoot = null;
+    }
     attachPinRoot();
     ensureHoverRoot();
     createSidebarUI();
@@ -1324,6 +1363,10 @@
       hoverRoot.remove();
       hoverRoot = null;
     }
+    if (launcherRoot) {
+      launcherRoot.remove();
+      launcherRoot = null;
+    }
   }
 
   window.WebsiteReviewWidget = {
@@ -1360,6 +1403,21 @@
   const urlParams = new URLSearchParams(window.location.search);
   const reviewToken = urlParams.get('review') || sessionStorage.getItem(SESSION_TOKEN_KEY);
 
+  function bootWithLauncher(projectId) {
+    injectStyles();
+    let isStarting = false;
+    createLauncherButton(() => {
+      if (isStarting) {
+        return;
+      }
+      isStarting = true;
+      initWidget({ projectId }).catch((error) => {
+        isStarting = false;
+        console.error(error);
+      });
+    });
+  }
+
   if (reviewToken) {
     resolveTokenToProjectId(reviewToken).then((projectId) => {
       if (!projectId) {
@@ -1367,15 +1425,9 @@
         return;
       }
       sessionStorage.setItem(SESSION_TOKEN_KEY, reviewToken);
-      initWidget({ projectId }).catch((error) => {
-        console.error(error);
-      });
+      bootWithLauncher(projectId);
     });
   } else if (autoScript && autoScript.dataset && autoScript.dataset.projectId) {
-    initWidget({
-      projectId: autoScript.dataset.projectId,
-    }).catch((error) => {
-      console.error(error);
-    });
+    bootWithLauncher(autoScript.dataset.projectId);
   }
 })();

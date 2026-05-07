@@ -8,7 +8,6 @@ export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   return authService.user$.pipe(
-    // Wait until Firebase has resolved the auth state (skip the initial undefined)
     filter((user) => user !== undefined),
     take(1),
     map((user) => (user ? true : router.createUrlTree(['/login']))),

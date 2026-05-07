@@ -13,7 +13,7 @@ Admin dashboard (this app)          Client's website
    (gets a Project ID)                 (no config needed)
 3. Share a review URL        →      4. Open link — widget
    ?review=<projectId>                 activates automatically
-                             ←      5. Reviewers click to leave
+                            ←      5. Reviewers click to leave
 6. View & resolve comments              visual comments
    in real time (Firestore)
 ```
@@ -59,7 +59,7 @@ npm install
 
 The app reads Firebase config from environment variables at build time. Copy the values from your Firebase project settings.
 
-Create a `.env` file (never commit this):
+Create a `.env` file:
 
 ```
 FIREBASE_API_KEY=your_api_key
